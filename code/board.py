@@ -7,8 +7,8 @@ class Board(QFrame):  # base the board on a QFrame widget
     clickLocationSignal = pyqtSignal(str)  # signal sent when there is a new click location
 
     # TODO set the board width and height to be square
-    boardWidth = 0  # board is 0 squares wide # TODO this needs updating
-    boardHeight = 0  #
+    boardWidth = 7  # board is 0 squares wide # TODO this needs updating
+    boardHeight = 7  #
     timerSpeed = 1000  # the timer updates every 1 second
     counter = 10  # the number the counter will count down from
 
@@ -67,7 +67,8 @@ class Board(QFrame):  # base the board on a QFrame widget
 
     def mousePressEvent(self, event):
         '''this event is automatically called when the mouse is pressed'''
-        clickLoc = "click location [" + str(event.x()) + "," + str(event.y()) + "]"  # the location where a mouse click was registered
+        pos = event.position()  # Use position() instead of x() and y()
+        clickLoc = f"click location [{int(pos.x())}, {int(pos.y())}]"  # Convert to int
         print("mousePressEvent() - " + clickLoc)
         # TODO you could call some game logic here
         self.clickLocationSignal.emit(clickLoc)
@@ -89,7 +90,7 @@ class Board(QFrame):  # base the board on a QFrame widget
                 painter.save()
                 painter.translate(col * squareWidth, row * squareHeight)
                 painter.setBrush(QBrush(QColor(255, 255, 255)))  # Set brush color
-                painter.drawRect(0, 0, squareWidth, squareHeight)  # Draw rectangles
+                painter.drawRect(0, 0, int(squareWidth), int(squareHeight))  # Draw rectangles
                 painter.restore()
 
     def drawPieces(self, painter):
