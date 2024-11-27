@@ -23,3 +23,24 @@ class GoGame:
         # swaps between 1 and 2
         # if it is first players turn, 3 - 1 = 2 turns into second player.
         #if it is the second player's turn, 3 - 2 = 1 turns into the first player.
+
+    def capture_pieces(self, x, y):
+        #capturing logic
+        opponent = 3 - self.current_player
+        directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]  # each direction
+        to_capture = []
+
+        def has_liberties(x, y, visited):
+            #check for the group for liberties.
+            if (x, y) in visited:
+                return False
+            visited.add((x, y))
+            if not (0 <= x < self.board_size and 0 <= y < self.board_size):
+                return False
+            if self.board[x][y] == 0:
+                return True
+            if self.board[x][y] != opponent:
+                return False
+
+            return any(has_liberties(x + dx, y + dy, visited) for dx, dy in directions)
+
