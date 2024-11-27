@@ -9,4 +9,11 @@ class GoGame:
         # check if the move is possible
         return 0 <= x < self.board_size and 0 <= y < self.board_size and self.board[x][y] == 0
 
+    def place_stone(self, x, y):
+        if not self.is_valid_move(x, y):
+            return False  # not possible move
+        self.board[x][y] = self.current_player
+        self.capture_pieces(x, y)  # check and remove captured pieces
+        self.switch_turn() #after each move turn swaps
+        return True
 
