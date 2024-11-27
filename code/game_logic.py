@@ -14,6 +14,12 @@ class GoGame:
             return False  # not possible move
         self.board[x][y] = self.current_player
         self.capture_pieces(x, y)  # check and remove captured pieces
-        self.switch_turn() #after each move turn swaps
+        self.swap_turn() #after each move turn swaps
         return True
 
+    def swap_turn(self):
+        #swap turn
+        self.current_player = 3 - self.current_player
+        # swaps between 1 and 2
+        # if it is first players turn, 3 - 1 = 2 turns into second player.
+        #if it is the second player's turn, 3 - 2 = 1 turns into the first player.
