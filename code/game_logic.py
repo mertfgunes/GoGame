@@ -44,3 +44,45 @@ class GoGame:
 
             return any(has_liberties(x + dx, y + dy, visited) for dx, dy in directions)
 
+        def collect_group(x, y, group):
+            #collecting stones in a group
+            if (x, y) in group or not (0 <= x < self.board_size and 0 <= y < self.board_size):
+                return
+            if self.board[x][y] == opponent:
+                group.add((x, y))
+                for dx, dy in directions:
+                    collect_group(x + dx, y + dy, group)
+
+        # checking each directions for opponent
+        for dx, dy in directions:
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < self.board_size and 0 <= ny < self.board_size and self.board[nx][ny] == opponent:
+                group = set()
+                collect_group(nx, ny, group)
+                if not has_liberties(nx, ny, set()):
+                    to_capture.extend(group)
+
+        #remove the captured prisoner.
+        for cx, cy in to_capture:
+            self.board[cx][cy] = 0
+
+    def display_board(self):
+        #self explanitory
+        self.board.display()
+
+# Example Usage
+if __name__ == "__main__":
+    game = GoGame()
+    game.display_board()
+    game.place_stone(3, 3)  # Black
+    game.display_board()
+    game.place_stone(3, 4)  # White
+    game.display_board()
+    game.place_stone(2, 4)  # Black
+    game.display_board()
+    game.place_stone(4, 4)  # White
+    game.display_board()
+    game.place_stone(3, 5)  # Black
+    game.display_board()
+    game.place_stone(2, 3)  # White
+    game.display_board()
