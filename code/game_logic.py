@@ -1,4 +1,4 @@
-class GoGame:
+class game_logic:
     def __init__(self, board_size=7):
         # this is temporarily since it is going to be adjustable in the future
         self.board_size = board_size
@@ -10,7 +10,7 @@ class GoGame:
         return 0 <= x < self.board_size and 0 <= y < self.board_size and self.board[x][y] == 0
 
     def place_stone(self, x, y):
-        if not self.is_valid_move(x, y):
+        if not self.is_possible_move(x, y):
             return False  # not possible move
         self.board[x][y] = self.current_player
         self.capture_pieces(x, y)  # check and remove captured pieces
@@ -67,12 +67,14 @@ class GoGame:
             self.board[cx][cy] = 0
 
     def display_board(self):
-        #self explanitory
-        self.board.display()
+        # Display the board in a readable format
+        for row in self.board:
+            print(" ".join(str(cell) for cell in row))
+        print()  # Add a blank line for better readability
 
-# Example Usage
+    # Example Usage
 if __name__ == "__main__":
-    game = GoGame()
+    game = game_logic()
     game.display_board()
     game.place_stone(3, 3)  # Black
     game.display_board()
