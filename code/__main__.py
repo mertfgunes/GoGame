@@ -2,6 +2,10 @@ from PyQt6.QtWidgets import QApplication
 from go import Go
 import sys
 
-app = QApplication([])
-myGo = Go()
-sys.exit(app.exec())
+def main():
+    app = QApplication(sys.argv)
+    myGo = Go()
+    sys.exit(app.exec())
+
+if __name__ == '__main__':
+    main()
