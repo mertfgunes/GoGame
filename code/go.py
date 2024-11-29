@@ -1,46 +1,39 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QDockWidget
+from PyQt6.QtWidgets import QApplication, QMainWindow, QDockWidget, QWidget, QVBoxLayout
 from PyQt6.QtCore import Qt
-
 from board import Board
 from score_board import ScoreBoard
-
+from game_logic import game_logic
 
 class Go(QMainWindow):
-
     def __init__(self):
         super().__init__()
+        self.game_logic = game_logic()  # Create game logic instance
         self.initUI()
 
-    def getBoard(self):
-        return self.board
-
-    def getScoreBoard(self):
-        return self.scoreBoard
-
     def initUI(self):
-        '''Initiates application UI'''
-        self.board = Board(self)
-        self.setCentralWidget(self.board)
-
+        self.setStyleSheet("background-color: #1a1a1a;")
+        
+        central_widget = QWidget()
+        layout = QVBoxLayout(central_widget)
+        layout.setContentsMargins(20, 20, 20, 20)
+        
+        self.board = Board(self, self.game_logic)  # Pass game_logic instance
+        layout.addWidget(self.board)
+        
+        self.setCentralWidget(central_widget)
+        
         self.scoreBoard = ScoreBoard()
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.scoreBoard)
-        self.scoreBoard.make_connection(self.board)
-
-        self.resize(800, 800)
+        
+        self.resize(1000, 800)
         self.center()
         self.setWindowTitle('Go')
         self.show()
 
-
     def center(self):
-        '''Centers the window on the screen'''
         screen = QApplication.primaryScreen().availableGeometry()
         size = self.geometry()
-        x = (screen.width() - size.width()) // 2
-        y = (screen.height() - size.height()) // 2
-        self.move(x, y)
-
-
-
-
-
+        self.move(
+            (screen.width() - size.width()) // 2,
+            (screen.height() - size.height()) // 2
+        )
