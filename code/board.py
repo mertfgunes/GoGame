@@ -1,107 +1,89 @@
 from PyQt6.QtWidgets import QFrame
-from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QPoint
-from PyQt6.QtGui import QPainter, QColor, QBrush
+from PyQt6.QtCore import Qt, pyqtSignal, QRect
+from PyQt6.QtGui import QPainter, QColor, QPen, QBrush
 
-class Board(QFrame):  # base the board on a QFrame widget
-    updateTimerSignal = pyqtSignal(int)  # signal sent when the timer is updated
-    clickLocationSignal = pyqtSignal(str)  # signal sent when there is a new click location
 
-    # TODO set the board width and height to be square
-    boardWidth = 7  # board is 0 squares wide # TODO this needs updating
-    boardHeight = 7  #
-    timerSpeed = 1000  # the timer updates every 1 second
-    counter = 10  # the number the counter will count down from
+class Board(QFrame):
+    updatePrisonersSignal = pyqtSignal(int, int)
+    updateTurnSignal = pyqtSignal(str)
 
-    def __init__(self, parent):
+    def __init__(self, parent, game_logic):
         super().__init__(parent)
+        self.game_logic = game_logic
         self.initBoard()
 
     def initBoard(self):
-        '''initiates board'''
-        self.timer = QTimer(self)  # create a timer for the game
-        self.timer.timeout.connect(self.timerEvent)  # connect timeout signal to timerEvent method
-        self.isStarted = False  # game is not currently started
-        self.start()  # start the game which will start the timer
+        '''Initialize the board with a default style and size.'''
+        self.setStyleSheet("background-color: #92400E; border-radius: 8px;")
+        self.setMinimumSize(600, 600)  # Ensure the widget has a minimum size
 
-        self.boardArray = []  # TODO - create a 2d int/Piece array to store the state of the game
-        # self.printBoardArray()    # TODO - uncomment this method after creating the array above
-
-    def printBoardArray(self):
-        '''prints the boardArray in an attractive way'''
-        print("boardArray:")
-        print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in self.boardArray]))
-
-    def mousePosToColRow(self, event):
-        '''convert the mouse click event to a row and column'''
-        pass  # Implement this method according to your logic
-
-    def squareWidth(self):
-        '''returns the width of one square in the board'''
-        return self.contentsRect().width() / self.boardWidth
-
-    def squareHeight(self):
-        '''returns the height of one square of the board'''
-        return self.contentsRect().height() / self.boardHeight
-
-    def start(self):
-        '''starts game'''
-        self.isStarted = True  # set the boolean which determines if the game has started to TRUE
-        self.resetGame()  # reset the game
-        self.timer.start(self.timerSpeed)  # start the timer with the correct speed
-        print("start () - timer is started")
-
-    def timerEvent(self):
-        '''this event is automatically called when the timer is updated. based on the timerSpeed variable '''
-        # TODO adapt this code to handle your timers
-        if Board.counter == 0:
-            print("Game over")
-        self.counter -= 1
-        print('timerEvent()', self.counter)
-        self.updateTimerSignal.emit(self.counter)
+    def resizeEvent(self, event):
+        '''Triggered whenever the widget is resized.'''
+        super().resizeEvent(event)
+        self.update()  # Redraw the board to adapt to the new size
 
     def paintEvent(self, event):
-        '''paints the board and the pieces of the game'''
+        '''Paint the board with a fixed square grid centered in the widget.'''
         painter = QPainter(self)
-        self.drawBoardSquares(painter)
-        self.drawPieces(painter)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        # Get the widget's dimensions
+        widget_width = self.width()
+        widget_height = self.height()
+        grid_size = min(widget_width, widget_height)  # Square grid size
+        margin_x = (widget_width - grid_size) // 2
+        margin_y = (widget_height - grid_size) // 2
+
+        # Create a square rect for the grid area
+        self.grid_rect = QRect(margin_x, margin_y, grid_size, grid_size)
+
+        # Draw grid and stones within the grid rect
+        self.drawGrid(painter)
+        self.drawStones(painter)
+
+    def drawGrid(self, painter):
+        '''Draws the grid inside the fixed square area.'''
+        painter.setPen(QPen(QColor(255, 255, 255, 50), 3))
+        grid_size = self.grid_rect.width()  # Square dimensions
+        cell_size = grid_size / 7  # Divide the square into 7 cells
+
+        # Draw vertical lines
+        for i in range(8):  # From 0 to 7 inclusive (8 lines)
+            x = self.grid_rect.left() + i * cell_size
+            painter.drawLine(int(x), self.grid_rect.top(), int(x), self.grid_rect.bottom())
+
+        # Draw horizontal lines
+        for i in range(8):  # From 0 to 7 inclusive (8 lines)
+            y = self.grid_rect.top() + i * cell_size
+            painter.drawLine(self.grid_rect.left(), int(y), self.grid_rect.right(), int(y))
+
+    def drawStones(self, painter):
+        '''Draw stones (pieces) on the board.'''
+        rect = self.contentsRect()  # Get the drawable area
+        cell_size = min(rect.width(), rect.height()) / 7  # Ensure square cells
+
+        for row in range(7):
+            for col in range(7):
+                if self.game_logic.board[row][col] != 0:  # Check if a stone exists
+                    # Calculate the center of the cell
+                    x = rect.left() + col * cell_size + cell_size / 2
+                    y = rect.top() + row * cell_size + cell_size / 2
+                    # Set stone color: black for player 1, white for player 2
+                    color = Qt.GlobalColor.black if self.game_logic.board[row][col] == 1 else Qt.GlobalColor.white
+                    painter.setBrush(QBrush(color))
+                    painter.setPen(QPen(Qt.GlobalColor.black))
+                    # Draw the stone as an ellipse
+                    painter.drawEllipse(int(x - cell_size / 3), int(y - cell_size / 3),
+                                        int(cell_size * 2 / 3), int(cell_size * 2 / 3))
 
     def mousePressEvent(self, event):
-        '''this event is automatically called when the mouse is pressed'''
-        pos = event.position()  # Use position() instead of x() and y()
-        clickLoc = f"click location [{int(pos.x())}, {int(pos.y())}]"  # Convert to int
-        print("mousePressEvent() - " + clickLoc)
-        # TODO you could call some game logic here
-        self.clickLocationSignal.emit(clickLoc)
+        '''Handle mouse clicks to place stones on the board.'''
+        rect = self.contentsRect()  # Get the drawable area
+        cell_size = min(rect.width(), rect.height()) / 7  # Ensure square cells
+        col = int((event.pos().x() - rect.left()) / cell_size)
+        row = int((event.pos().y() - rect.top()) / cell_size)
 
-    def resetGame(self):
-        '''clears pieces from the board'''
-        # TODO write code to reset game
-
-    def tryMove(self, newX, newY):
-        '''tries to move a piece'''
-        pass  # Implement this method according to your logic
-
-    def drawBoardSquares(self, painter):
-        '''draw all the square on the board'''
-        squareWidth = self.squareWidth()
-        squareHeight = self.squareHeight()
-        for row in range(0, Board.boardHeight):
-            for col in range(0, Board.boardWidth):
-                painter.save()
-                painter.translate(col * squareWidth, row * squareHeight)
-                painter.setBrush(QBrush(QColor(255, 255, 255)))  # Set brush color
-                painter.drawRect(0, 0, int(squareWidth), int(squareHeight))  # Draw rectangles
-                painter.restore()
-
-    def drawPieces(self, painter):
-        '''draw the pieces on the board'''
-        for row in range(0, len(self.boardArray)):
-            for col in range(0, len(self.boardArray[0])):
-                painter.save()
-                painter.translate(col * self.squareWidth(), row * self.squareHeight())
-                # TODO draw some pieces as ellipses
-                # TODO choose your color and set the painter brush to the correct color
-                radius = (self.squareWidth() - 2) / 2
-                center = QPoint(radius, radius)
-                painter.drawEllipse(center, radius, radius)
-                painter.restore()
+        # Ensure the click is within bounds
+        if 0 <= row < 7 and 0 <= col < 7:
+            if self.game_logic.place_stone(row, col):  # Update game logic
+                self.update()  # Trigger a repaint
