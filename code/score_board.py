@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import QDockWidget, QVBoxLayout, QHBoxLayout, QWidget, QLabel
 from PyQt6.QtCore import pyqtSlot, Qt
 
+
 class ScoreBoard(QDockWidget):
     '''base the score_board on a QDockWidget'''
 
@@ -38,7 +39,7 @@ class ScoreBoard(QDockWidget):
 
         # Add Prisoners section
         self.addPrisonersSection()
-        
+
         # Add Turn section
         self.addTurnSection()
 
@@ -74,72 +75,72 @@ class ScoreBoard(QDockWidget):
         prisonerWidget = QWidget()
         prisonerLayout = QVBoxLayout()
         prisonerLayout.setSpacing(15)
-        
+
         # Prisoners title
         prisonerLabel = QLabel("Prisoners")
         prisonerLabel.setStyleSheet("font-size: 24px; font-weight: bold;")
         prisonerLayout.addWidget(prisonerLabel)
-        
+
         # Prisoner counts container
         countsWidget = QWidget()
         countsLayout = QHBoxLayout()
         countsLayout.setSpacing(20)
-        
+
         # Black prisoners
         self.blackCount = QLabel("9")
         blackCountWidget = self.createPrisonerCount("black", self.blackCount)
-        
+
         # White prisoners
         self.whiteCount = QLabel("1")
         whiteCountWidget = self.createPrisonerCount("white", self.whiteCount)
-        
+
         countsLayout.addWidget(blackCountWidget)
         countsLayout.addWidget(whiteCountWidget)
         countsLayout.addStretch()
-        
+
         countsWidget.setLayout(countsLayout)
         prisonerLayout.addWidget(countsWidget)
         prisonerWidget.setLayout(prisonerLayout)
-        
+
         self.mainLayout.addWidget(prisonerWidget)
 
     def addTurnSection(self):
         turnWidget = QWidget()
         turnLayout = QVBoxLayout()
         turnLayout.setSpacing(15)
-        
+
         turnLabel = QLabel("TURN")
         turnLabel.setStyleSheet("font-size: 24px; font-weight: bold;")
         turnLayout.addWidget(turnLabel)
-        
+
         playerWidget = QWidget()
         playerLayout = QHBoxLayout()
-        
+
         self.playerLabel = QLabel("Getty")
         self.playerLabel.setStyleSheet("font-size: 32px; font-weight: bold;")
-        
+
         self.turnIndicator = QLabel()
         self.turnIndicator.setFixedSize(40, 40)
         self.turnIndicator.setStyleSheet("""
             background-color: black;
             border-radius: 20px;
         """)
-        
+
         playerLayout.addWidget(self.playerLabel)
         playerLayout.addWidget(self.turnIndicator)
         playerLayout.addStretch()
-        
+
         playerWidget.setLayout(playerLayout)
         turnLayout.addWidget(playerWidget)
         turnWidget.setLayout(turnLayout)
-        
+
         self.mainLayout.addWidget(turnWidget)
 
     def createPrisonerCount(self, color, countLabel):
         widget = QWidget()
         layout = QHBoxLayout()
         layout.setSpacing(10)
-        
+
         stone = QLabel()
         stone.setFixedSize(32, 32)
         if color == "black":
@@ -150,12 +151,12 @@ class ScoreBoard(QDockWidget):
                 border: 1px solid black;
                 border-radius: 16px;
             """)
-        
+
         countLabel.setStyleSheet("font-size: 20px; font-weight: bold;")
-        
+
         layout.addWidget(stone)
         layout.addWidget(countLabel)
         layout.addStretch()
-        
+
         widget.setLayout(layout)
         return widget

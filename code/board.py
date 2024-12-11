@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QFrame
-from PyQt6.QtCore import Qt, pyqtSignal, QRect
+from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QPainter, QColor, QPen, QBrush
 
 
@@ -13,77 +13,51 @@ class Board(QFrame):
         self.initBoard()
 
     def initBoard(self):
-        '''Initialize the board with a default style and size.'''
         self.setStyleSheet("background-color: #92400E; border-radius: 8px;")
-        self.setMinimumSize(600, 600)  # Ensure the widget has a minimum size
-
-    def resizeEvent(self, event):
-        '''Triggered whenever the widget is resized.'''
-        super().resizeEvent(event)
-        self.update()  # Redraw the board to adapt to the new size
+        self.setMinimumSize(600, 600)
 
     def paintEvent(self, event):
-        '''Paint the board with a fixed square grid centered in the widget.'''
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
-        # Get the widget's dimensions
-        widget_width = self.width()
-        widget_height = self.height()
-        grid_size = min(widget_width, widget_height)  # Square grid size
-        margin_x = (widget_width - grid_size) // 2
-        margin_y = (widget_height - grid_size) // 2
-
-        # Create a square rect for the grid area
-        self.grid_rect = QRect(margin_x, margin_y, grid_size, grid_size)
-
-        # Draw grid and stones within the grid rect
         self.drawGrid(painter)
         self.drawStones(painter)
 
     def drawGrid(self, painter):
-        '''Draws the grid inside the fixed square area.'''
-        painter.setPen(QPen(QColor(255, 255, 255, 50), 3))
-        grid_size = self.grid_rect.width()  # Square dimensions
-        cell_size = grid_size / 7  # Divide the square into 7 cells
+        painter.setPen(QPen(QColor(255, 255, 255, 50), 1))
+        rect = self.contentsRect()
+        cell_size = min(rect.width(), rect.height()) / 7
 
-        # Draw vertical lines
-        for i in range(8):  # From 0 to 7 inclusive (8 lines)
-            x = self.grid_rect.left() + i * cell_size
-            painter.drawLine(int(x), self.grid_rect.top(), int(x), self.grid_rect.bottom())
-
-        # Draw horizontal lines
-        for i in range(8):  # From 0 to 7 inclusive (8 lines)
-            y = self.grid_rect.top() + i * cell_size
-            painter.drawLine(self.grid_rect.left(), int(y), self.grid_rect.right(), int(y))
+        # Draw lines
+        for i in range(7):
+            x = rect.left() + i * cell_size + cell_size / 2
+            y = rect.top() + i * cell_size + cell_size / 2
+            painter.drawLine(int(x), int(rect.top() + cell_size / 2),
+                             int(x), int(rect.bottom() - cell_size / 2))
+            painter.drawLine(int(rect.left() + cell_size / 2), int(y),
+                             int(rect.right() - cell_size / 2), int(y))
 
     def drawStones(self, painter):
-        '''Draw stones (pieces) on the board.'''
-        rect = self.contentsRect()  # Get the drawable area
-        cell_size = min(rect.width(), rect.height()) / 7  # Ensure square cells
+        rect = self.contentsRect()
+        cell_size = min(rect.width(), rect.height()) / 7
 
         for row in range(7):
             for col in range(7):
-                if self.game_logic.board[row][col] != 0:  # Check if a stone exists
-                    # Calculate the center of the cell
+                if self.game_logic.board[row][col] != 0:
                     x = rect.left() + col * cell_size + cell_size / 2
                     y = rect.top() + row * cell_size + cell_size / 2
-                    # Set stone color: black for player 1, white for player 2
                     color = Qt.GlobalColor.black if self.game_logic.board[row][col] == 1 else Qt.GlobalColor.white
                     painter.setBrush(QBrush(color))
                     painter.setPen(QPen(Qt.GlobalColor.black))
-                    # Draw the stone as an ellipse
                     painter.drawEllipse(int(x - cell_size / 3), int(y - cell_size / 3),
                                         int(cell_size * 2 / 3), int(cell_size * 2 / 3))
 
     def mousePressEvent(self, event):
-        '''Handle mouse clicks to place stones on the board.'''
-        rect = self.contentsRect()  # Get the drawable area
-        cell_size = min(rect.width(), rect.height()) / 7  # Ensure square cells
-        col = int((event.pos().x() - rect.left()) / cell_size)
-        row = int((event.pos().y() - rect.top()) / cell_size)
+        rect = self.contentsRect()
+        cell_size = min(rect.width(), rect.height()) / 7
+        col = int((event.pos().x() - rect.left() - cell_size / 2) / cell_size)
+        row = int((event.pos().y() - rect.top() - cell_size / 2) / cell_size)
 
-        # Ensure the click is within bounds
         if 0 <= row < 7 and 0 <= col < 7:
-            if self.game_logic.place_stone(row, col):  # Update game logic
-                self.update()  # Trigger a repaint
+            if self.game_logic.place_stone(row, col):
+                self.update()
