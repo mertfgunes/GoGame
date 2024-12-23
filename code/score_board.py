@@ -1,3 +1,4 @@
+from PyQt6.QtGui import QFont, QPicture, QPixmap
 from PyQt6.QtWidgets import QDockWidget, QVBoxLayout, QHBoxLayout, QWidget, QLabel
 from PyQt6.QtCore import pyqtSlot, Qt
 
@@ -14,11 +15,11 @@ class ScoreBoard(QDockWidget):
         self.setFixedWidth(300)
         self.setStyleSheet("""
             QDockWidget {
-                background-color: #E5E7EB;
                 border: none;
+                color: black;
             }
             QWidget {
-                background-color: #E5E7EB;
+                background-color: #d4d4d4;
             }
             QLabel {
                 color: #1F2937;
@@ -30,7 +31,6 @@ class ScoreBoard(QDockWidget):
         # Create main widget and layout
         self.mainWidget = QWidget()
         self.mainLayout = QVBoxLayout()
-        self.mainLayout.setSpacing(30)
         self.mainLayout.setContentsMargins(20, 20, 20, 20)
 
         # Keep original labels from template
@@ -74,29 +74,25 @@ class ScoreBoard(QDockWidget):
     def addPrisonersSection(self):
         prisonerWidget = QWidget()
         prisonerLayout = QVBoxLayout()
-        prisonerLayout.setSpacing(15)
 
         # Prisoners title
-        prisonerLabel = QLabel("Prisoners")
-        prisonerLabel.setStyleSheet("font-size: 24px; font-weight: bold;")
-        prisonerLayout.addWidget(prisonerLabel)
+        prisonerLabel = self.Text("Prisioner", size=24, bold=True)
+        prisonerLayout.addWidget(prisonerLabel, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # Prisoner counts container
         countsWidget = QWidget()
         countsLayout = QHBoxLayout()
-        countsLayout.setSpacing(20)
 
         # Black prisoners
-        self.blackCount = QLabel("9")
-        blackCountWidget = self.createPrisonerCount("black", self.blackCount)
+        self.blackCount = self.Text("2", size=24)
+        blackCountWidget = self.createPrisonerCount(self.blackCount, "assets/images/whitecuff.png")
 
         # White prisoners
-        self.whiteCount = QLabel("1")
-        whiteCountWidget = self.createPrisonerCount("white", self.whiteCount)
+        self.whiteCount = self.Text("2", size=24)
+        whiteCountWidget = self.createPrisonerCount(self.whiteCount, "assets/images/blackcuff.png")
 
         countsLayout.addWidget(blackCountWidget)
         countsLayout.addWidget(whiteCountWidget)
-        countsLayout.addStretch()
 
         countsWidget.setLayout(countsLayout)
         prisonerLayout.addWidget(countsWidget)
@@ -106,57 +102,68 @@ class ScoreBoard(QDockWidget):
 
     def addTurnSection(self):
         turnWidget = QWidget()
+        turnWidget.setStyleSheet("background: #bfa395; border-radius: 10px;")
         turnLayout = QVBoxLayout()
-        turnLayout.setSpacing(15)
 
-        turnLabel = QLabel("TURN")
-        turnLabel.setStyleSheet("font-size: 24px; font-weight: bold;")
-        turnLayout.addWidget(turnLabel)
+        turnLabel = self.Text("Current Player", color="#92400E", size=24)
+        turnLayout.addWidget(turnLabel, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        playerWidget = QWidget()
-        playerLayout = QHBoxLayout()
+        currentPlayerWidget = QWidget()
+        currentPlayerLayout = QHBoxLayout()
 
-        self.playerLabel = QLabel("Getty")
-        self.playerLabel.setStyleSheet("font-size: 32px; font-weight: bold;")
+        self.currentPlayerText = self.Text("Getty", size=32, bold=True)
 
         self.turnIndicator = QLabel()
-        self.turnIndicator.setFixedSize(40, 40)
+        self.turnIndicator.setFixedSize(60, 60)
         self.turnIndicator.setStyleSheet("""
-            background-color: black;
-            border-radius: 20px;
+            background-color: white;
+            border-radius: 30px;
+            border: 1.5px solid black;
         """)
 
-        playerLayout.addWidget(self.playerLabel)
-        playerLayout.addWidget(self.turnIndicator)
-        playerLayout.addStretch()
+        currentPlayerLayout.addWidget(self.currentPlayerText,  alignment=Qt.AlignmentFlag.AlignCenter)
+        currentPlayerLayout.addWidget(self.turnIndicator)
 
-        playerWidget.setLayout(playerLayout)
-        turnLayout.addWidget(playerWidget)
+        currentPlayerWidget.setLayout(currentPlayerLayout)
+        turnLayout.addWidget(currentPlayerWidget, alignment=Qt.AlignmentFlag.AlignCenter)
         turnWidget.setLayout(turnLayout)
 
         self.mainLayout.addWidget(turnWidget)
 
-    def createPrisonerCount(self, color, countLabel):
+    def createPrisonerCount(self, text, iconPath: str) -> QWidget:
+        # Create a parent widget
         widget = QWidget()
-        layout = QHBoxLayout()
-        layout.setSpacing(10)
+        layout = QVBoxLayout()
 
-        stone = QLabel()
-        stone.setFixedSize(32, 32)
-        if color == "black":
-            stone.setStyleSheet("background-color: black; border-radius: 16px;")
-        else:
-            stone.setStyleSheet("""
-                background-color: white;
-                border: 1px solid black;
-                border-radius: 16px;
-            """)
+        # Create the icon QLabel and set fixed size
+        icon = QLabel()
 
-        countLabel.setStyleSheet("font-size: 20px; font-weight: bold;")
+        # Load and scale the image
+        pixmap = QPixmap(iconPath).scaled(40, 40)
+        icon.setPixmap(pixmap)
 
-        layout.addWidget(stone)
-        layout.addWidget(countLabel)
-        layout.addStretch()
+        # Apply the outer color (orange) and inner image with rounded corners
+        icon.setStyleSheet("""
+            QLabel {
+                border-radius: 5; /* Half the size for a circular effect */
+                padding: 5px; /* Padding for the image inside */
+                background-color: white; /* Background color for the icon area */
+            }
+        """)
 
+        layout.addWidget(icon, alignment=Qt.AlignmentFlag.AlignCenter)
+        # add the text QLabel
+        layout.addWidget(text, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        # Set layout to the widget
         widget.setLayout(layout)
         return widget
+
+    def Text(self, text, color="black", size=12, bold: bool = False):
+        text = QLabel(str(text))
+        if color != "black":
+            text.setStyleSheet(f"color: '{color}';")
+        font = QFont("Arial", size)
+        font.setBold(bold)
+        text.setFont(font)
+        return text
