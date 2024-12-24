@@ -24,7 +24,9 @@ class Board(QFrame):
         self.drawStones(painter)
 
     def drawGrid(self, painter):
-        painter.setPen(QPen(QColor(255, 255, 255, 50), 1))
+        board_color = QColor(255, 255, 255, 50)
+        thickness = 10
+        painter.setPen(QPen(board_color,thickness ))
         rect = self.contentsRect()
         cell_size = min(rect.width(), rect.height()) / 7
 

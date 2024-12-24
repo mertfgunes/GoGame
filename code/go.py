@@ -15,9 +15,10 @@ class Go(QMainWindow):
         
         central_widget = QWidget()
         layout = QVBoxLayout(central_widget)
-        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setContentsMargins(40, 40, 20, 20)
         
         self.board = Board(self, self.game_logic)  # Pass game_logic instance
+        self.board.setFixedSize(700,700)
         layout.addWidget(self.board)
         
         self.setCentralWidget(central_widget)
@@ -25,7 +26,7 @@ class Go(QMainWindow):
         self.scoreBoard = ScoreBoard()
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.scoreBoard)
         
-        self.resize(1000, 800)
+        self.resize(800, 750)
         self.center()
         self.setWindowTitle('Go')
         self.show()
