@@ -1,6 +1,6 @@
 from PyQt6.QtGui import QFont, QPicture, QPixmap
-from PyQt6.QtWidgets import QDockWidget, QVBoxLayout, QHBoxLayout, QWidget, QLabel
-from PyQt6.QtCore import pyqtSlot, Qt
+from PyQt6.QtWidgets import QDockWidget, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QPushButton
+from PyQt6.QtCore import pyqtSlot, Qt, QSize
 
 
 class ScoreBoard(QDockWidget):
@@ -33,9 +33,7 @@ class ScoreBoard(QDockWidget):
         self.mainLayout = QVBoxLayout()
         self.mainLayout.setContentsMargins(20, 20, 20, 20)
 
-        # Keep original labels from template
-        self.label_clickLocation = QLabel("Click Location: ")
-        self.label_timeRemaining = QLabel("Time remaining: ")
+
 
         # Add Prisoners section
         self.addPrisonersSection()
@@ -43,13 +41,30 @@ class ScoreBoard(QDockWidget):
         # Add Turn section
         self.addTurnSection()
 
-        # Add original labels from template
-        self.mainLayout.addWidget(self.label_clickLocation)
-        self.mainLayout.addWidget(self.label_timeRemaining)
+        self.mainLayout.addStretch()
+        self.mainLayout.addWidget(self.customButton("start", "brown"))
+        self.mainLayout.addWidget(self.customButton("start", "grey"))
+
 
         # Set the main widget
         self.mainWidget.setLayout(self.mainLayout)
         self.setWidget(self.mainWidget)
+
+    def customButton(self, text, color):
+        btn = QPushButton(text)
+        btn.setStyleSheet(f"""
+                   QPushButton {{
+                       background-color: {color};                     /* Base color */
+                       color: white;                                 /* White text */
+                       font-size: 16px;                              /* Font size */
+                       padding: 10px;                                /* Padding */
+                       border-radius: 8px;                           /* Rounded corners */
+                   }}
+                   QPushButton:hover {{
+                       font-size: 18px;                              /* Font size */
+                   }}
+               """)
+        return btn
 
     def make_connection(self, board):
         '''this handles a signal sent from the board class'''
