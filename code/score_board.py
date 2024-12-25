@@ -1,14 +1,18 @@
-from PyQt6.QtGui import QFont, QPicture, QPixmap
+from PyQt6.QtGui import QFont, QPicture, QPixmap, QFontDatabase
 from PyQt6.QtWidgets import QDockWidget, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QPushButton
 from PyQt6.QtCore import pyqtSlot, Qt, QSize
-
+import os
+from PyQt6.uic.properties import QtCore
 
 class ScoreBoard(QDockWidget):
     '''base the score_board on a QDockWidget'''
 
     def __init__(self):
         super().__init__()
+        self.currentPlayerText = QLabel()
+        self.turnIndicator = None
         self.initUI()
+        self.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
 
     def initUI(self):
         '''initiates ScoreBoard UI'''
@@ -42,29 +46,13 @@ class ScoreBoard(QDockWidget):
         self.addTurnSection()
 
         self.mainLayout.addStretch()
+        self.mainLayout.addWidget(self.customButton("reset", "grey"))
         self.mainLayout.addWidget(self.customButton("start", "brown"))
-        self.mainLayout.addWidget(self.customButton("start", "grey"))
 
 
         # Set the main widget
         self.mainWidget.setLayout(self.mainLayout)
         self.setWidget(self.mainWidget)
-
-    def customButton(self, text, color):
-        btn = QPushButton(text)
-        btn.setStyleSheet(f"""
-                   QPushButton {{
-                       background-color: {color};                     /* Base color */
-                       color: white;                                 /* White text */
-                       font-size: 16px;                              /* Font size */
-                       padding: 10px;                                /* Padding */
-                       border-radius: 8px;                           /* Rounded corners */
-                   }}
-                   QPushButton:hover {{
-                       font-size: 18px;                              /* Font size */
-                   }}
-               """)
-        return btn
 
     def make_connection(self, board):
         '''this handles a signal sent from the board class'''
@@ -91,7 +79,7 @@ class ScoreBoard(QDockWidget):
         prisonerLayout = QVBoxLayout()
 
         # Prisoners title
-        prisonerLabel = self.Text("Prisioner", size=24, bold=True)
+        prisonerLabel = self.Text("Prisioner", size=30, bold=True)
         prisonerLayout.addWidget(prisonerLabel, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # Prisoner counts container
@@ -126,7 +114,7 @@ class ScoreBoard(QDockWidget):
         currentPlayerWidget = QWidget()
         currentPlayerLayout = QHBoxLayout()
 
-        self.currentPlayerText = self.Text("Getty", size=32, bold=True)
+        self.currentPlayerText = self.Text("Player 1", size=32, bold=True)
 
         self.turnIndicator = QLabel()
         self.turnIndicator.setFixedSize(60, 60)
@@ -144,6 +132,10 @@ class ScoreBoard(QDockWidget):
         turnWidget.setLayout(turnLayout)
 
         self.mainLayout.addWidget(turnWidget)
+
+    def changeCurrentPlayerText(self, playerId):
+        if playerId == 1:
+            self.currentPlayerText.setText("heli")
 
     def createPrisonerCount(self, text, iconPath: str) -> QWidget:
         # Create a parent widget
@@ -174,11 +166,48 @@ class ScoreBoard(QDockWidget):
         widget.setLayout(layout)
         return widget
 
-    def Text(self, text, color="black", size=12, bold: bool = False):
+    def Text(self, text, color="black", size=14, bold: bool = False):
         text = QLabel(str(text))
         if color != "black":
-            text.setStyleSheet(f"color: '{color}';")
-        font = QFont("Arial", size)
+            text.setStyleSheet(f"color: {color};")
+
+        # Set font
+        font = QFont(self.customFont(), size)
         font.setBold(bold)
         text.setFont(font)
         return text
+
+    def customFont(self):
+        # Get the current working directory and construct the font path
+        current_dir = os.getcwd()
+        font_path = os.path.join(current_dir, "assets/fonts/YsabeauSC-SemiBold.ttf")
+
+        # Load custom font
+        font_id = QFontDatabase.addApplicationFont(font_path)
+        if font_id != -1:
+            font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
+            return font_family
+        else:
+            font_family = "Helvetica"
+            return font_family
+
+
+
+
+    def customButton(self, text, color):
+        btn = QPushButton(text)
+        btn.setStyleSheet(f"""
+                   QPushButton {{
+                       background-color: {color};                     /* Base color */
+                       color: white;                                 /* White text */
+                       padding: 10px;                                /* Padding */
+                       border-radius: 8px;                           /* Rounded corners */
+                   }}
+                   QPushButton:hover {{
+                       font-size: 24px;                              /* Font size */
+                   }}
+               """)
+        # Set font
+        font = QFont(self.customFont(), 20)
+        btn.setFont(font)
+        return btn

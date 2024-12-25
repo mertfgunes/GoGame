@@ -15,7 +15,7 @@ class Go(QMainWindow):
         
         central_widget = QWidget()
         layout = QVBoxLayout(central_widget)
-        layout.setContentsMargins(40, 40, 20, 20)
+        layout.setContentsMargins(40, 40, 40, 40)
         
         self.board = Board(self, self.game_logic)  # Pass game_logic instance
         self.board.setFixedSize(700,700)

@@ -12,6 +12,7 @@ class Board(QFrame):
         self.game_logic = game_logic
         self.initBoard()
 
+
     def initBoard(self):
         self.setStyleSheet("background-color: #92400E; border-radius: 8px;")
         self.setMinimumSize(600, 600)
