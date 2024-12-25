@@ -3,9 +3,10 @@ from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QPainter, QColor, QPen, QBrush
 
 
+
 class Board(QFrame):
     updatePrisonersSignal = pyqtSignal(int, int)
-    updateTurnSignal = pyqtSignal(str)
+    updateTurnSignal = pyqtSignal(int)
 
     def __init__(self, parent, game_logic):
         super().__init__(parent)
@@ -64,3 +65,6 @@ class Board(QFrame):
         if 0 <= row < 7 and 0 <= col < 7:
             if self.game_logic.place_stone(row, col):
                 self.update()
+        self.updateTurnSignal.emit(self.game_logic.current_player)
+
+

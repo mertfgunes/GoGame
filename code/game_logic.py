@@ -1,3 +1,4 @@
+
 class game_logic:
     def __init__(self, board_size=7):
         # this is temporarily since it is going to be adjustable in the future
@@ -73,18 +74,18 @@ class game_logic:
         print()  # Add a blank line for better readability
 
     # Example Usage
-if __name__ == "__main__":
-    game = game_logic()
-    game.display_board()
-    game.place_stone(3, 3)  # Black
-    game.display_board()
-    game.place_stone(3, 4)  # White
-    game.display_board()
-    game.place_stone(2, 4)  # Black
-    game.display_board()
-    game.place_stone(4, 4)  # White
-    game.display_board()
-    game.place_stone(3, 5)  # Black
-    game.display_board()
-    game.place_stone(2, 3)  # White
-    game.display_board()
+# if __name__ == "__main__":
+#     game = game_logic()
+#     game.display_board()
+#     game.place_stone(3, 3)  # Black
+#     game.display_board()
+#     game.place_stone(3, 4)  # White
+#     game.display_board()
+#     game.place_stone(2, 4)  # Black
+#     game.display_board()
+#     game.place_stone(4, 4)  # White
+#     game.display_board()
+#     game.place_stone(3, 5)  # Black
+#     game.display_board()
+#     game.place_stone(2, 3)  # White
+#     game.display_board()

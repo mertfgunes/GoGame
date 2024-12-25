@@ -2,15 +2,16 @@ from PyQt6.QtGui import QFont, QPicture, QPixmap, QFontDatabase
 from PyQt6.QtWidgets import QDockWidget, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QPushButton
 from PyQt6.QtCore import pyqtSlot, Qt, QSize
 import os
-from PyQt6.uic.properties import QtCore
+
 
 class ScoreBoard(QDockWidget):
     '''base the score_board on a QDockWidget'''
 
     def __init__(self):
         super().__init__()
-        self.currentPlayerText = QLabel()
         self.turnIndicator = None
+        self.currentPlayer = self.Text("Player 1", size=32, bold=True)
+
         self.initUI()
         self.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
 
@@ -37,8 +38,6 @@ class ScoreBoard(QDockWidget):
         self.mainLayout = QVBoxLayout()
         self.mainLayout.setContentsMargins(20, 20, 20, 20)
 
-
-
         # Add Prisoners section
         self.addPrisonersSection()
 
@@ -49,7 +48,6 @@ class ScoreBoard(QDockWidget):
         self.mainLayout.addWidget(self.customButton("reset", "grey"))
         self.mainLayout.addWidget(self.customButton("start", "brown"))
 
-
         # Set the main widget
         self.mainWidget.setLayout(self.mainLayout)
         self.setWidget(self.mainWidget)
@@ -57,15 +55,34 @@ class ScoreBoard(QDockWidget):
     def make_connection(self, board):
         '''this handles a signal sent from the board class'''
         # when the clickLocationSignal is emitted in board the setClickLocation slot receives it
-        board.clickLocationSignal.connect(self.setClickLocation)
-        # when the updateTimerSignal is emitted in the board the setTimeRemaining slot receives it
-        board.updateTimerSignal.connect(self.setTimeRemaining)
+        # board.updateTurnSignal.connect(self.setClickLocation)
+        # # when the updateTimerSignal is emitted in the board the setTimeRemaining slot receives it
+        # board.updateTimerSignal.connect(self.setTimeRemaining)
+        board.updateTurnSignal.connect(self.onPlayerChange)
+
+    @pyqtSlot(int)
+    def onPlayerChange(self, playerId):
+        self.currentPlayer.setText(("Player " + str(playerId)))
+        if playerId == 1:
+            self.turnIndicator.setStyleSheet("""
+                    background-color: black;
+                    border-radius: 30px;
+                    border: 1.5px solid black;
+                """)
+        else:
+            self.turnIndicator.setStyleSheet("""
+                           background-color: white;
+                           border-radius: 30px;
+                           border: 1.5px solid black;
+                       """)
 
     @pyqtSlot(str)
     def setClickLocation(self, clickLoc):
         '''updates the label to show the click location'''
-        self.label_clickLocation.setText("Click Location: " + clickLoc)
-        print('slot ' + clickLoc)
+        # self.label_clickLocation.setText("Click Location: " + clickLoc)
+        # print('slot ' + clickLoc)
+        self.currentPlayer.setText(clickLoc)
+        print("clicked")
 
     @pyqtSlot(int)
     def setTimeRemaining(self, timeRemaining):
@@ -73,6 +90,11 @@ class ScoreBoard(QDockWidget):
         update = "Time Remaining: " + str(timeRemaining)
         self.label_timeRemaining.setText(update)
         print('slot ' + str(timeRemaining))
+
+    def changePlayer(self):
+        print(self.currentPlayer.text())
+        self.currentPlayer.setText("Player 2")
+        print(self.currentPlayer.text())
 
     def addPrisonersSection(self):
         prisonerWidget = QWidget()
@@ -114,17 +136,14 @@ class ScoreBoard(QDockWidget):
         currentPlayerWidget = QWidget()
         currentPlayerLayout = QHBoxLayout()
 
-        self.currentPlayerText = self.Text("Player 1", size=32, bold=True)
-
         self.turnIndicator = QLabel()
         self.turnIndicator.setFixedSize(60, 60)
         self.turnIndicator.setStyleSheet("""
-            background-color: white;
+            background-color: black;
             border-radius: 30px;
             border: 1.5px solid black;
         """)
-
-        currentPlayerLayout.addWidget(self.currentPlayerText,  alignment=Qt.AlignmentFlag.AlignCenter)
+        currentPlayerLayout.addWidget(self.currentPlayer, alignment=Qt.AlignmentFlag.AlignCenter)
         currentPlayerLayout.addWidget(self.turnIndicator)
 
         currentPlayerWidget.setLayout(currentPlayerLayout)
@@ -132,10 +151,6 @@ class ScoreBoard(QDockWidget):
         turnWidget.setLayout(turnLayout)
 
         self.mainLayout.addWidget(turnWidget)
-
-    def changeCurrentPlayerText(self, playerId):
-        if playerId == 1:
-            self.currentPlayerText.setText("heli")
 
     def createPrisonerCount(self, text, iconPath: str) -> QWidget:
         # Create a parent widget
@@ -190,9 +205,6 @@ class ScoreBoard(QDockWidget):
         else:
             font_family = "Helvetica"
             return font_family
-
-
-
 
     def customButton(self, text, color):
         btn = QPushButton(text)
