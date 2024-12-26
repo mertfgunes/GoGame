@@ -1,10 +1,18 @@
-
 class game_logic:
     def __init__(self, board_size=7):
         # this is temporarily since it is going to be adjustable in the future
         self.board_size = board_size
         self.board = [[0 for _ in range(board_size)] for _ in range(board_size)]
         self.current_player = 1  # 1 for black, 2 for white because black goes first.
+
+        #score variable to keep track of the game.
+        # not sure if it is going to be used.
+        self.score_black = 0
+        self.score_white = 0
+
+        # prisoner counter
+        self.prisoners_black = 0
+        self.prisoners_white = 0
 
     def is_possible_move(self, x, y):
         # check if the move is possible
@@ -64,8 +72,14 @@ class game_logic:
                     to_capture.extend(group)
 
         #remove the captured prisoner.
+        # and update the prisoner count here
         for cx, cy in to_capture:
             self.board[cx][cy] = 0
+
+        if self.current_player == 1:
+            self.prisoners_white += len(to_capture)
+        else:
+            self.prisoners_black += len(to_capture)
 
     def display_board(self):
         # Display the board in a readable format
