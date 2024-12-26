@@ -13,6 +13,7 @@ class Go(QMainWindow):
 
     def createMenuBar(self):
         menuBar = self.menuBar()
+        menuBar.setNativeMenuBar(False)
         menuBar.setStyleSheet("""
             QMenuBar {
                 background-color: #2d2d2d;
