@@ -16,12 +16,18 @@ class ScoreBoard(QDockWidget):
         self.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
 
     def initUI(self):
-        '''initiates ScoreBoard UI'''
         self.setFixedWidth(300)
+        self.setWindowTitle('ScoreBoard') 
         self.setStyleSheet("""
             QDockWidget {
+                background-color: #E5E7EB;
                 border: none;
-                color: black;
+                color: #1F2937;
+            }
+            QDockWidget::title {
+                font-family: 'YsabeauSC-SemiBold';
+                font-size: 19px;
+                font-weight: bold;
             }
             QWidget {
                 background-color: #d4d4d4;
@@ -31,7 +37,6 @@ class ScoreBoard(QDockWidget):
                 background-color: transparent;
             }
         """)
-        self.setWindowTitle('ScoreBoard')
 
         # Create main widget and layout
         self.mainWidget = QWidget()
