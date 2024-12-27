@@ -68,3 +68,4 @@ class Board(QFrame):
         self.updateTurnSignal.emit(self.game_logic.current_player)
 
 
+    

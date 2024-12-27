@@ -49,16 +49,19 @@ class ScoreBoard(QDockWidget):
         # Add Turn section
         self.addTurnSection()
 
-        self.mainLayout.addStretch()
-        self.mainLayout.addWidget(self.customButton("reset", "grey"))
-        self.mainLayout.addWidget(self.customButton("start", "brown"))
+        
 
         # Set the main widget
         self.mainWidget.setLayout(self.mainLayout)
         self.setWidget(self.mainWidget)
+
         self.undoButton = self.customButton("undo", "grey")
         self.undoButton.clicked.connect(self.undoMove)
         self.mainLayout.addWidget(self.undoButton)
+
+        self.resetButton = self.customButton("reset", "grey")
+        self.resetButton.clicked.connect(self.resetGame)
+        self.mainLayout.addWidget(self.resetButton)
     
     def undoMove(self):
         try:
