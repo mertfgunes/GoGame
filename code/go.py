@@ -25,7 +25,7 @@ class Go(QMainWindow):
         # When start game is clicked, initialize the game UI
         self.game_logic = game_logic()  # Reset game logic
         self.initUI()
-        
+
     def createMenuBar(self):
         menuBar = self.menuBar()
         menuBar.setNativeMenuBar(False)
@@ -57,7 +57,7 @@ class Go(QMainWindow):
         exitAction.triggered.connect(self.close)
         backToMenuAction = fileMenu.addAction("Back to Menu")
         backToMenuAction.triggered.connect(self.showWelcome)
-        fileMenu.addSeparator()  # separator line 
+        fileMenu.addSeparator()  # separator line
 
         helpMenu = menuBar.addMenu("Help")
         rulesAction = helpMenu.addAction("Rules")
@@ -66,7 +66,7 @@ class Go(QMainWindow):
         aboutAction.triggered.connect(self.showAbout)
 
     def showRules(self):
-        QMessageBox.information(self, "Go Rules", 
+        QMessageBox.information(self, "Go Rules",
             "Basic rules:\n- Players alternate placing stones\n- Capture by surrounding\n- Control territory to win")
 
     def showAbout(self):
@@ -75,7 +75,7 @@ class Go(QMainWindow):
 
     def initUI(self):
         self.setStyleSheet("background-color: #1a1a1a;")
-        
+
          # Create main widget
         main_widget = QWidget()
         main_layout = QVBoxLayout(main_widget)
@@ -107,17 +107,17 @@ class Go(QMainWindow):
         content_widget = QWidget()
         content_layout = QVBoxLayout(content_widget)
         content_layout.setContentsMargins(40, 40, 40, 40)
-        
+
         self.board = Board(self, self.game_logic)  # Pass game_logic instance
-        self.board.setFixedSize(700,700)
-        content_layout.addWidget(self.board, alignment=Qt.AlignmentFlag.AlignHCenter)        
-         
+        self.board.setFixedSize(600,600)
+        content_layout.addWidget(self.board, alignment=Qt.AlignmentFlag.AlignHCenter)
+
          # Set the widget in scroll area
         scroll.setWidget(content_widget)
         main_layout.addWidget(scroll)
         # Set main widget as central widget
         self.setCentralWidget(main_widget)
-        
+
         self.scoreBoard = ScoreBoard()
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.scoreBoard)
         self.scoreBoard.make_connection(self.board)
@@ -127,7 +127,7 @@ class Go(QMainWindow):
         self.center()
         self.setWindowTitle('Go')
         self.show()
-        
+
         def startGame(self):
             self.initUI()
 
