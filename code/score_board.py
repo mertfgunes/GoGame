@@ -56,6 +56,22 @@ class ScoreBoard(QDockWidget):
         # Set the main widget
         self.mainWidget.setLayout(self.mainLayout)
         self.setWidget(self.mainWidget)
+        self.undoButton = self.customButton("undo", "grey")
+        self.undoButton.clicked.connect(self.undoMove)
+        self.mainLayout.addWidget(self.undoButton)
+    
+    def undoMove(self):
+        try:
+            if self.parent() and hasattr(self.parent(), 'game_logic'):
+                success = self.parent().game_logic.undoLastMove()
+                if success:
+                    self.parent().board.update()
+                    # Update turn indicator
+                    self.onPlayerChange(self.parent().game_logic.current_player)
+        except Exception as e:
+            print(f"Error in undo: {e}")
+
+    
 
     def make_connection(self, board):
         '''this handles a signal sent from the board class'''

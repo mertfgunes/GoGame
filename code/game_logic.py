@@ -4,6 +4,8 @@ class game_logic:
         self.board_size = board_size
         self.board = [[0 for _ in range(board_size)] for _ in range(board_size)]
         self.current_player = 1  # 1 for black, 2 for white because black goes first.
+        self.board_history = []
+        self.current_player_history = []
 
         #score variable to keep track of the game.
         # not sure if it is going to be used.
@@ -21,11 +23,22 @@ class game_logic:
     def place_stone(self, x, y):
         if not self.is_possible_move(x, y):
             return False  # not possible move
+        self.board_history.append([row[:] for row in self.board])
+        self.current_player_history.append(self.current_player)
         self.board[x][y] = self.current_player
         self.capture_pieces(x, y)  # check and remove captured pieces
         self.swap_turn() #after each move turn swaps
         return True
-
+    
+    def undoLastMove(self):
+        if len(self.board_history) > 0:  # Add this check
+            print("Undoing last move")  # Add debug print
+            self.board = self.board_history.pop()
+            self.current_player = self.current_player_history.pop()
+            return True
+        print("No moves to undo")  # Add debug print
+        return False
+    
     def swap_turn(self):
         #swap turn
         self.current_player = 3 - self.current_player
@@ -103,3 +116,4 @@ class game_logic:
 #     game.display_board()
 #     game.place_stone(2, 3)  # White
 #     game.display_board()
+
