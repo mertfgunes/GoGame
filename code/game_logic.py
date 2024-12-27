@@ -56,13 +56,15 @@ class game_logic:
     def place_stone(self, x, y):
         if not self.is_possible_move(x, y):
             return False  # not possible move
+
         self.board_history.append([row[:] for row in self.board])
         self.current_player_history.append(self.current_player)
         self.board[x][y] = self.current_player
+
         self.capture_pieces(x, y)  # check and remove captured pieces
         self.swap_turn() #after each move turn swaps
         return True
-    
+
     def undoLastMove(self):
         if len(self.board_history) > 0:  # Add this check
             print("Undoing last move")  # Add debug print
