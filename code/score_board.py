@@ -11,7 +11,8 @@ class ScoreBoard(QDockWidget):
         super().__init__()
         self.turnIndicator = None
         self.currentPlayer = self.Text("Player 1", size=32, bold=True)
-
+        self.blackPrisioner = self.Text("0", size=24)
+        self.whitePrisioner = self.Text("0", size=24)
         self.initUI()
         self.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
 
@@ -81,6 +82,7 @@ class ScoreBoard(QDockWidget):
         # # when the updateTimerSignal is emitted in the board the setTimeRemaining slot receives it
         # board.updateTimerSignal.connect(self.setTimeRemaining)
         board.updateTurnSignal.connect(self.onPlayerChange)
+        board.updatePrisonersSignal.connect(self.onPrisionerCountChange)
 
     @pyqtSlot(int)
     def onPlayerChange(self, playerId):
@@ -97,6 +99,12 @@ class ScoreBoard(QDockWidget):
                            border-radius: 30px;
                            border: 1.5px solid black;
                        """)
+
+    @pyqtSlot(int, int)
+    def onPrisionerCountChange(self, prisoners_black, prisoners_white):
+        print("black: ", prisoners_black," white: ",prisoners_white )
+        self.blackPrisioner.setText(str(prisoners_black))
+        self.whitePrisioner.setText(str(prisoners_white))
 
     @pyqtSlot(str)
     def setClickLocation(self, clickLoc):
@@ -131,12 +139,10 @@ class ScoreBoard(QDockWidget):
         countsLayout = QHBoxLayout()
 
         # Black prisoners
-        self.blackCount = self.Text("2", size=24)
-        blackCountWidget = self.createPrisonerCount(self.blackCount, "assets/images/whitecuff.png")
+        blackCountWidget = self.createPrisonerCount(self.blackPrisioner, "assets/images/whitecuff.png")
 
         # White prisoners
-        self.whiteCount = self.Text("2", size=24)
-        whiteCountWidget = self.createPrisonerCount(self.whiteCount, "assets/images/blackcuff.png")
+        whiteCountWidget = self.createPrisonerCount(self.whitePrisioner, "assets/images/blackcuff.png")
 
         countsLayout.addWidget(blackCountWidget)
         countsLayout.addWidget(whiteCountWidget)

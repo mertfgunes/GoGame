@@ -69,6 +69,7 @@ class Board(QFrame):
             if self.game_logic.place_stone(row, col):
                 self.update()
         self.updateTurnSignal.emit(self.game_logic.current_player)
+        self.updatePrisonersSignal.emit(self.game_logic.prisoners_black, self.game_logic.prisoners_white)
 
 
     
