@@ -16,11 +16,11 @@ class Go(QMainWindow):
     def initWelcome(self):
         self.welcome = WelcomePage(self)
         self.setCentralWidget(self.welcome)
-        self.resize(800, 600)
+        self.resize(800, 700)
         self.center()
         self.setWindowTitle('Go')
         self.show()
-        
+
     def startGame(self):
         # When start game is clicked, initialize the game UI
         self.game_logic = game_logic()  # Reset game logic
