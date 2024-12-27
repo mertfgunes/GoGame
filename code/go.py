@@ -1,4 +1,5 @@
-from PyQt6.QtWidgets import QApplication, QMessageBox, QMainWindow, QDockWidget, QWidget, QVBoxLayout
+from pages.welcome_page import WelcomePage
+from PyQt6.QtWidgets import QApplication,QScrollArea, QMessageBox, QMainWindow, QDockWidget, QWidget, QVBoxLayout
 from PyQt6.QtCore import Qt
 from board import Board
 from score_board import ScoreBoard
@@ -7,8 +8,26 @@ from game_logic import game_logic
 class Go(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.game_logic = game_logic()
+        self.initWelcome()
         self.createMenuBar()
         self.game_logic = game_logic()  # Create game logic instance
+
+    def initWelcome(self):
+        self.welcome = WelcomePage(self)
+        self.setCentralWidget(self.welcome)
+        self.resize(800, 600)
+        self.center()
+        self.setWindowTitle('Go')
+        self.show()
+
+    def startGame(self):
+        # Remove welcome page
+        if hasattr(self, 'welcome'):
+            self.welcome.close()
+        # Initialize game
+        self.game_logic = game_logic()
+        # Create game UI
         self.initUI()
 
     def createMenuBar(self):
@@ -40,7 +59,10 @@ class Go(QMainWindow):
         fileMenu = menuBar.addMenu("File")
         exitAction = fileMenu.addAction("Exit")
         exitAction.triggered.connect(self.close)
-            
+        backToMenuAction = fileMenu.addAction("Back to Menu")
+        backToMenuAction.triggered.connect(self.showWelcome)
+        fileMenu.addSeparator()  # separator line 
+
         helpMenu = menuBar.addMenu("Help")
         rulesAction = helpMenu.addAction("Rules")
         rulesAction.triggered.connect(self.showRules)
@@ -59,30 +81,71 @@ class Go(QMainWindow):
     def initUI(self):
         self.setStyleSheet("background-color: #1a1a1a;")
         
-        central_widget = QWidget()
-        layout = QVBoxLayout(central_widget)
-        layout.setContentsMargins(40, 40, 40, 40)
+         # Create main widget
+        main_widget = QWidget()
+        main_layout = QVBoxLayout(main_widget)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+         # Create scroll area
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        scroll.setStyleSheet("""
+            QScrollArea {
+                border: none;
+                background-color: #1a1a1a;
+            }
+            QScrollBar:vertical, QScrollBar:horizontal {
+                background: #2d2d2d;
+                width: 12px;
+                height: 12px;
+            }
+            QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
+                background: #4a4a4a;
+                border-radius: 6px;
+            }
+            QScrollBar::handle:vertical:hover, QScrollBar::handle:horizontal:hover {
+                background: #5a5a5a;
+            }
+        """)
+         # Create content widget for scroll area
+        content_widget = QWidget()
+        content_layout = QVBoxLayout(content_widget)
+        content_layout.setContentsMargins(40, 40, 40, 40)
         
         self.board = Board(self, self.game_logic)  # Pass game_logic instance
         self.board.setFixedSize(700,700)
-        layout.addWidget(self.board)
-        
-        self.setCentralWidget(central_widget)
+        content_layout.addWidget(self.board, alignment=Qt.AlignmentFlag.AlignHCenter)        
+         
+         # Set the widget in scroll area
+        scroll.setWidget(content_widget)
+        main_layout.addWidget(scroll)
+        # Set main widget as central widget
+        self.setCentralWidget(main_widget)
         
         self.scoreBoard = ScoreBoard()
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.scoreBoard)
         self.scoreBoard.make_connection(self.board)
 
-        self.resize(800, 750)
+         # Window setup
+        self.resize(800, 800)
         self.center()
         self.setWindowTitle('Go')
-        self.setStyleSheet("""
-            QWidget#centralWidget {
-                font-family: 'YsabeauSC-SemiBold';
-            }
-            """)
         self.show()
-    
+        
+        def startGame(self):
+            self.initUI()
+
+    def showWelcome(self):
+        # Remove scoreboard if it exists
+        if hasattr(self, 'scoreBoard'):
+            self.removeDockWidget(self.scoreBoard)
+        # Show welcome page
+        welcome = WelcomePage(self)
+        self.setCentralWidget(welcome)
+
+    def switchToTutorial(self, tutorial):
+        self.setCentralWidget(tutorial)
 
     def showRules(self):
         rules_text = """
