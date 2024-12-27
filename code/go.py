@@ -20,16 +20,12 @@ class Go(QMainWindow):
         self.center()
         self.setWindowTitle('Go')
         self.show()
-
+        
     def startGame(self):
-        # Remove welcome page
-        if hasattr(self, 'welcome'):
-            self.welcome.close()
-        # Initialize game
-        self.game_logic = game_logic()
-        # Create game UI
+        # When start game is clicked, initialize the game UI
+        self.game_logic = game_logic()  # Reset game logic
         self.initUI()
-
+        
     def createMenuBar(self):
         menuBar = self.menuBar()
         menuBar.setNativeMenuBar(False)
@@ -76,7 +72,6 @@ class Go(QMainWindow):
     def showAbout(self):
         QMessageBox.about(self, "About Go", "Go Game\nVersion 1.0")
 
-# Call createMenuBar() in __init__() after super().__init__()
 
     def initUI(self):
         self.setStyleSheet("background-color: #1a1a1a;")
@@ -128,7 +123,7 @@ class Go(QMainWindow):
         self.scoreBoard.make_connection(self.board)
 
          # Window setup
-        self.resize(800, 800)
+        self.resize(1000, 800)
         self.center()
         self.setWindowTitle('Go')
         self.show()
