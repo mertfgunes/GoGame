@@ -59,8 +59,11 @@ class Board(QFrame):
     def mousePressEvent(self, event):
         rect = self.contentsRect()
         cell_size = min(rect.width(), rect.height()) / 7
-        col = int((event.pos().x() - rect.left() - cell_size / 2) / cell_size)
-        row = int((event.pos().y() - rect.top() - cell_size / 2) / cell_size)
+
+        #switched the offset calculation to round instead of int to make click even easier
+        #and yeah making it just round instead of int fixed the entire problem.
+        col = round((event.pos().x() - rect.left() - cell_size / 2) / cell_size)
+        row = round((event.pos().y() - rect.top() - cell_size / 2) / cell_size)
 
         if 0 <= row < 7 and 0 <= col < 7:
             if self.game_logic.place_stone(row, col):
