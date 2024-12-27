@@ -17,8 +17,41 @@ class game_logic:
         self.prisoners_white = 0
 
     def is_possible_move(self, x, y):
-        # check if the move is possible
-        return 0 <= x < self.board_size and 0 <= y < self.board_size and self.board[x][y] == 0
+        # cheker for if the position is within bounds and empty
+        if not (0 <= x < self.board_size and 0 <= y < self.board_size):
+            return False
+        if self.board[x][y] != 0:
+            return False
+
+        # check the liberties, the next method explains it
+        self.board[x][y] = self.current_player
+        has_liberty = self.check_liberties(x, y)
+        self.board[x][y] = 0  # Undo the simulated move
+
+        return has_liberty
+
+    def check_liberties(self, x, y):
+        # checker for the stone or its group has liberties
+        visited = set()
+        return self._has_liberties(x, y, visited)
+
+    def _has_liberties(self, x, y, visited):
+        # basically similiar with the has_liberties
+        if (x, y) in visited:
+            return False
+        visited.add((x, y))
+
+        if not (0 <= x < self.board_size and 0 <= y < self.board_size):
+            return False
+
+        if self.board[x][y] == 0:
+            return True
+
+        if self.board[x][y] != self.current_player:
+            return False
+
+        directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+        return any(self._has_liberties(x + dx, y + dy, visited) for dx, dy in directions)
 
     def place_stone(self, x, y):
         if not self.is_possible_move(x, y):
