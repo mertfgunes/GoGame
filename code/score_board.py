@@ -139,10 +139,10 @@ class ScoreBoard(QDockWidget):
         countsLayout = QHBoxLayout()
 
         # Black prisoners
-        blackCountWidget = self.createPrisonerCount(self.blackPrisioner, "assets/images/whitecuff.png")
+        blackCountWidget = self.createPrisonerCount(self.whitePrisioner, "assets/images/whitecuff.png")
 
         # White prisoners
-        whiteCountWidget = self.createPrisonerCount(self.whitePrisioner, "assets/images/blackcuff.png")
+        whiteCountWidget = self.createPrisonerCount(self.blackPrisioner, "assets/images/blackcuff.png")
 
         countsLayout.addWidget(blackCountWidget)
         countsLayout.addWidget(whiteCountWidget)
