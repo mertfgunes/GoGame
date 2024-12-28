@@ -18,7 +18,7 @@ class ScoreBoard(QDockWidget):
 
     def initUI(self):
         self.setFixedWidth(300)
-        self.setWindowTitle('ScoreBoard') 
+        self.setWindowTitle('ScoreBoard')
         self.setStyleSheet("""
             QDockWidget {
                 background-color: #E5E7EB;
@@ -47,10 +47,10 @@ class ScoreBoard(QDockWidget):
         # Add Prisoners section
         self.addPrisonersSection()
 
+        self.mainLayout.addStretch()
         # Add Turn section
         self.addTurnSection()
-
-        
+        self.mainLayout.addStretch()
 
         # Set the main widget
         self.mainWidget.setLayout(self.mainLayout)
@@ -60,8 +60,6 @@ class ScoreBoard(QDockWidget):
         self.undoButton.clicked.connect(self.undoMove)
         self.mainLayout.addWidget(self.undoButton)
 
-        
-    
     def undoMove(self):
         try:
             if self.parent() and hasattr(self.parent(), 'game_logic'):
@@ -72,8 +70,6 @@ class ScoreBoard(QDockWidget):
                     self.onPlayerChange(self.parent().game_logic.current_player)
         except Exception as e:
             print(f"Error in undo: {e}")
-
-    
 
     def make_connection(self, board):
         '''this handles a signal sent from the board class'''
@@ -102,7 +98,7 @@ class ScoreBoard(QDockWidget):
 
     @pyqtSlot(int, int)
     def onPrisionerCountChange(self, prisoners_black, prisoners_white):
-        print("black: ", prisoners_black," white: ",prisoners_white )
+        print("black: ", prisoners_black, " white: ", prisoners_white)
         self.blackPrisioner.setText(str(prisoners_black))
         self.whitePrisioner.setText(str(prisoners_white))
 
@@ -189,7 +185,8 @@ class ScoreBoard(QDockWidget):
         icon = QLabel()
 
         # Load and scale the image
-        pixmap = QPixmap(iconPath).scaled(40, 40)
+        pixmap = QPixmap(iconPath).scaled(40, 40, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatioByExpanding,
+                                          transformMode=Qt.TransformationMode.SmoothTransformation)
         icon.setPixmap(pixmap)
 
         # Apply the outer color (orange) and inner image with rounded corners
