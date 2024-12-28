@@ -3,7 +3,6 @@ from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QPainter, QColor, QPen, QBrush
 
 
-
 class Board(QFrame):
     updatePrisonersSignal = pyqtSignal(int, int)
     updateTurnSignal = pyqtSignal(int)

@@ -3,12 +3,15 @@ from PyQt6.QtWidgets import QDockWidget, QVBoxLayout, QHBoxLayout, QWidget, QLab
 from PyQt6.QtCore import pyqtSlot, Qt, QSize
 import os
 
+from game_logic import game_logic
+
 
 class ScoreBoard(QDockWidget):
     '''base the score_board on a QDockWidget'''
 
     def __init__(self):
         super().__init__()
+        self.game_logic = game_logic
         self.turnIndicator = None
         self.currentPlayer = self.Text("Player 1", size=32, bold=True)
         self.blackPrisioner = self.Text("0", size=24)
@@ -56,9 +59,45 @@ class ScoreBoard(QDockWidget):
         self.mainWidget.setLayout(self.mainLayout)
         self.setWidget(self.mainWidget)
 
+        # Add buttons container
+        buttonsWidget = QWidget()
+        buttonsLayout = QHBoxLayout()
+
+        # Add undo button
         self.undoButton = self.customButton("undo", "grey")
         self.undoButton.clicked.connect(self.undoMove)
-        self.mainLayout.addWidget(self.undoButton)
+        buttonsLayout.addWidget(self.undoButton)
+
+        # Add clear button
+        self.clearButton = self.customButton("clear", "Red")
+        self.clearButton.clicked.connect(self.clearBoard)
+        buttonsLayout.addWidget(self.clearButton)
+
+        buttonsWidget.setLayout(buttonsLayout)
+        self.mainLayout.addWidget(buttonsWidget)
+
+    def clearBoard(self):
+        """Clears all stones from the game board and resets the game state"""
+        try:
+            if self.parent() and hasattr(self.parent(), 'game_logic'):
+                # Reset the game board
+                self.parent().game_logic.board = [[0 for _ in range(self.parent().game_logic.board_size)]
+                                                  for _ in range(self.parent().game_logic.board_size)]
+                # Reset prisoners count
+                self.parent().game_logic.prisoners_black = 0
+                self.parent().game_logic.prisoners_white = 0
+                # Reset current player to black (player 1)
+                self.parent().game_logic.current_player = 1
+                # Clear the move history
+                self.parent().game_logic.board_history = []
+                self.parent().game_logic.current_player_history = []
+
+                # Update the UI
+                self.parent().board.update()
+                self.onPlayerChange(1)  # Reset turn indicator to player 1
+                self.onPrisionerCountChange(0, 0)  # Reset prisoner counts
+        except Exception as e:
+            print(f"Error in clear board: {e}")
 
     def undoMove(self):
         try:
@@ -74,8 +113,6 @@ class ScoreBoard(QDockWidget):
     def make_connection(self, board):
         '''this handles a signal sent from the board class'''
         # when the clickLocationSignal is emitted in board the setClickLocation slot receives it
-        # board.updateTurnSignal.connect(self.setClickLocation)
-        # # when the updateTimerSignal is emitted in the board the setTimeRemaining slot receives it
         # board.updateTimerSignal.connect(self.setTimeRemaining)
         board.updateTurnSignal.connect(self.onPlayerChange)
         board.updatePrisonersSignal.connect(self.onPrisionerCountChange)
@@ -105,8 +142,6 @@ class ScoreBoard(QDockWidget):
     @pyqtSlot(str)
     def setClickLocation(self, clickLoc):
         '''updates the label to show the click location'''
-        # self.label_clickLocation.setText("Click Location: " + clickLoc)
-        # print('slot ' + clickLoc)
         self.currentPlayer.setText(clickLoc)
         print("clicked")
 
