@@ -17,6 +17,8 @@ class Board(QFrame):
         self.setStyleSheet("background-color: #92400E; border-radius: 8px;")
         self.setMinimumSize(600, 600)
 
+
+
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)

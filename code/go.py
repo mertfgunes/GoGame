@@ -8,7 +8,6 @@ from game_logic import game_logic
 class Go(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.game_logic = game_logic()
         self.initWelcome()
         self.createMenuBar()
         self.game_logic = game_logic()  # Create game logic instance

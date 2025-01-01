@@ -1,9 +1,9 @@
 from PyQt6.QtGui import QFont, QPicture, QPixmap, QFontDatabase
 from PyQt6.QtWidgets import QDockWidget, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QPushButton
-from PyQt6.QtCore import pyqtSlot, Qt, QSize
+from PyQt6.QtCore import pyqtSlot, Qt, QSize, QTimer
 import os
 
-from game_logic import game_logic
+from pages.gameover_page import GameOverPage
 
 
 class ScoreBoard(QDockWidget):
@@ -11,12 +11,17 @@ class ScoreBoard(QDockWidget):
 
     def __init__(self):
         super().__init__()
-        self.game_logic = game_logic
+        self.GAME_TIME = 120
         self.turnIndicator = None
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_timer)
+        self.counter = self.GAME_TIME
+        self.timer_label = self.Text("10:00", size=32, bold=True, color="green", disableCustomFont=True)
         self.currentPlayer = self.Text("Player 1", size=32, bold=True)
         self.blackPrisioner = self.Text("0", size=24)
         self.whitePrisioner = self.Text("0", size=24)
         self.initUI()
+        self.startTimer()
         self.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
 
     def initUI(self):
@@ -55,6 +60,9 @@ class ScoreBoard(QDockWidget):
         self.addTurnSection()
         self.mainLayout.addStretch()
 
+        self.mainLayout.addWidget(self.timer_label)
+        self.mainLayout.addStretch()
+
         # Set the main widget
         self.mainWidget.setLayout(self.mainLayout)
         self.setWidget(self.mainWidget)
@@ -76,6 +84,31 @@ class ScoreBoard(QDockWidget):
         buttonsWidget.setLayout(buttonsLayout)
         self.mainLayout.addWidget(buttonsWidget)
 
+    def update_label(self):
+        minutes, seconds = divmod(self.counter, 60)
+        self.timer_label.setText(f"{minutes:02}:{seconds:02}")
+
+    def startTimer(self):
+        self.counter = self.GAME_TIME  # Reset counter
+        self.update_label()
+        self.timer.start(1000)  # Trigger every 1 second
+
+    def update_timer(self):
+        self.counter -= 1
+        self.update_label()
+        if self.counter <= 0:
+            self.timer.stop()
+            self.timer_label.setText("Time's up!")
+
+            prisoners_black = int(self.blackPrisioner.text())
+            prisoners_white = int(self.whitePrisioner.text())
+
+            # Pass the prisoner counts to the GameOverPage
+            popup = GameOverPage(prisoners_black, prisoners_white)
+            popup.exec()
+            self.clearBoard()
+
+
     def clearBoard(self):
         """Clears all stones from the game board and resets the game state"""
         try:
@@ -96,6 +129,7 @@ class ScoreBoard(QDockWidget):
                 self.parent().board.update()
                 self.onPlayerChange(1)  # Reset turn indicator to player 1
                 self.onPrisionerCountChange(0, 0)  # Reset prisoner counts
+                self.startTimer()
         except Exception as e:
             print(f"Error in clear board: {e}")
 
@@ -241,14 +275,18 @@ class ScoreBoard(QDockWidget):
         widget.setLayout(layout)
         return widget
 
-    def Text(self, text, color="black", size=14, bold: bool = False):
+    def Text(self, text, color="black", size=14, bold: bool = False, disableCustomFont: bool = False):
         text = QLabel(str(text))
         if color != "black":
             text.setStyleSheet(f"color: {color};")
 
         # Set font
-        font = QFont(self.customFont(), size)
-        font.setBold(bold)
+        if not disableCustomFont:
+            font = QFont(self.customFont(), size)
+            font.setBold(bold)
+        else:
+            font = QFont("Arial", size)
+            font.setBold(bold)
         text.setFont(font)
         return text
 
