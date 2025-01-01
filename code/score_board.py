@@ -60,7 +60,7 @@ class ScoreBoard(QDockWidget):
         self.addTurnSection()
         self.mainLayout.addStretch()
 
-        self.mainLayout.addWidget(self.timer_label)
+        self.mainLayout.addWidget(self.timer_label, alignment=Qt.AlignmentFlag.AlignCenter)
         self.mainLayout.addStretch()
 
         # Set the main widget
