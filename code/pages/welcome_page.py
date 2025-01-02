@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QApplication
 from PyQt6.QtCore import Qt
 from .tutorial_page import TutorialPage
 
@@ -24,7 +24,7 @@ class WelcomePage(QWidget):
         buttons = [
             ("Play Game", "#92400E", self.startGame),
             ("Tutorial", "#4B5563", self.showTutorial),
-            ("Exit", "#DC2626", self.close)
+            ("Exit", "#DC2626", QApplication.instance().quit)
         ]
         
         for text, color, callback in buttons:
