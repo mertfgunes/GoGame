@@ -17,7 +17,6 @@ class WelcomePage(QWidget):
             QLabel {
                 color: white;
                 font-size: 48px;
-                font-family: 'YsabeauSC-SemiBold', sans-serif;
             }
         """)
         layout.addWidget(title, alignment=Qt.AlignmentFlag.AlignCenter)
@@ -38,7 +37,6 @@ class WelcomePage(QWidget):
                     border: none;
                     border-radius: 8px;
                     font-size: 18px;
-                    font-family: 'YsabeauSC-SemiBold', sans-serif;
                 }}
                 QPushButton:hover {{
                     background-color: {color}DD;
