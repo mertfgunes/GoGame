@@ -11,42 +11,18 @@ class ScoreBoard(QDockWidget):
 
     def __init__(self):
         super().__init__()
-        self.GAME_TIME = 60 #1 minute per turn
+        self.GAME_TIME = 120
         self.turnIndicator = None
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_timer)
         self.counter = self.GAME_TIME
-        self.timer_label = self.Text("01:00", size=32, bold=True, color="green", disableCustomFont=True)
+        self.timer_label = self.Text("10:00", size=32, bold=True, color="green", disableCustomFont=True)
         self.currentPlayer = self.Text("Player 1", size=32, bold=True)
         self.blackPrisioner = self.Text("0", size=24)
         self.whitePrisioner = self.Text("0", size=24)
         self.initUI()
         self.startTimer()
         self.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
-
-    def startTurnTimer(self):
-        self.timer.stop()
-        self.counter = self.TURN_TIME  # resetting the counter to a min
-        self.update_label()
-        self.timer.start(1000)  # trigger each sec
-
-    def update_timer(self):
-        self.counter -= 1
-        self.update_label()
-        if self.counter <= 0:
-            self.timer.stop()
-            self.timer_label.setText("Time's up!")
-            self.handleTimeUp()
-
-    def handleTimeUp(self):
-        # switch turn for the timer.
-        self.parent().game_logic.swap_turn()
-        self.onPlayerChange(self.parent().game_logic.current_player)
-
-    @pyqtSlot(int)
-    def onPlayerChange(self, playerId):
-        self.currentPlayer.setText(f"Player {playerId}")
-        self.startTurnTimer()  # reset the timer for each turn.
 
     def initUI(self):
         self.setFixedWidth(300)
