@@ -11,7 +11,7 @@ class ScoreBoard(QDockWidget):
 
     def __init__(self):
         super().__init__()
-        self.GAME_TIME = 60
+        self.GAME_TIME = 60 # a min per each turn
         self.turnIndicator = None
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_timer)
