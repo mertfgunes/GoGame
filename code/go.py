@@ -1,9 +1,12 @@
+from PyQt6.QtGui import QKeySequence
+
 from pages.welcome_page import WelcomePage
-from PyQt6.QtWidgets import QApplication,QScrollArea, QMessageBox, QMainWindow, QDockWidget, QWidget, QVBoxLayout
+from PyQt6.QtWidgets import QApplication, QScrollArea, QMessageBox, QMainWindow, QDockWidget, QWidget, QVBoxLayout
 from PyQt6.QtCore import Qt
 from board import Board
 from score_board import ScoreBoard
 from game_logic import game_logic
+
 
 class Go(QMainWindow):
     def __init__(self):
@@ -54,32 +57,43 @@ class Go(QMainWindow):
         fileMenu = menuBar.addMenu("File")
         exitAction = fileMenu.addAction("Exit")
         exitAction.triggered.connect(self.close)
+        exitAction.setShortcut(QKeySequence("ctrl+q"))
         backToMenuAction = fileMenu.addAction("Back to Menu")
         backToMenuAction.triggered.connect(self.showWelcome)
+        backToMenuAction.setShortcut(QKeySequence("ctrl+w"))
         fileMenu.addSeparator()  # separator line
+
+        actionMenu = menuBar.addMenu("Actions")
+        undoAction = actionMenu.addAction("Undo")
+        undoAction.triggered.connect(lambda: self.scoreBoard.undoMove() if hasattr(self, 'scoreBoard') else None)
+        undoAction.setShortcut(QKeySequence("Ctrl+Z"))
+        resetAction = actionMenu.addAction("Reset Board")
+        resetAction.setShortcut(QKeySequence("Ctrl+Shift+R"))
+        resetAction.triggered.connect(lambda: self.scoreBoard.clearBoard() if hasattr(self, 'scoreBoard') else None)
 
         helpMenu = menuBar.addMenu("Help")
         rulesAction = helpMenu.addAction("Rules")
+        rulesAction.setShortcut(QKeySequence("alt+h"))
         rulesAction.triggered.connect(self.showRules)
         aboutAction = helpMenu.addAction("About")
+        aboutAction.setShortcut(QKeySequence("alt+i"))
         aboutAction.triggered.connect(self.showAbout)
 
     def showRules(self):
         QMessageBox.information(self, "Go Rules",
-            "Basic rules:\n- Players alternate placing stones\n- Capture by surrounding\n- Control territory to win")
+                                "Basic rules:\n- Players alternate placing stones\n- Capture by surrounding\n- Control territory to win")
 
     def showAbout(self):
         QMessageBox.about(self, "About Go", "Go Game\nVersion 1.0")
 
-
     def initUI(self):
         self.setStyleSheet("background-color: #1a1a1a;")
 
-         # Create main widget
+        # Create main widget
         main_widget = QWidget()
         main_layout = QVBoxLayout(main_widget)
         main_layout.setContentsMargins(0, 0, 0, 0)
-         # Create scroll area
+        # Create scroll area
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
@@ -102,16 +116,16 @@ class Go(QMainWindow):
                 background: #5a5a5a;
             }
         """)
-         # Create content widget for scroll area
+        # Create content widget for scroll area
         content_widget = QWidget()
         content_layout = QVBoxLayout(content_widget)
         content_layout.setContentsMargins(40, 40, 40, 40)
 
         self.board = Board(self, self.game_logic)  # Pass game_logic instance
-        self.board.setFixedSize(600,600)
+        self.board.setFixedSize(600, 600)
         content_layout.addWidget(self.board, alignment=Qt.AlignmentFlag.AlignHCenter)
 
-         # Set the widget in scroll area
+        # Set the widget in scroll area
         scroll.setWidget(content_widget)
         main_layout.addWidget(scroll)
         # Set main widget as central widget
@@ -121,7 +135,7 @@ class Go(QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.scoreBoard)
         self.scoreBoard.make_connection(self.board)
 
-         # Window setup
+        # Window setup
         self.resize(1000, 800)
         self.center()
         self.setWindowTitle('Go')
@@ -144,7 +158,7 @@ class Go(QMainWindow):
     def showRules(self):
         rules_text = """
         Basic Rules of Go:
-        
+
         1. Players take turns placing stones
         2. Black plays first
         3. Capture stones by surrounding them
@@ -157,7 +171,7 @@ class Go(QMainWindow):
         about_text = """
         Go Game
         Version 1.0
-        
+
         A traditional board game with
         history spanning over 2,500 years.
         """
