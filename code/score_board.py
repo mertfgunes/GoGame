@@ -153,20 +153,22 @@ class ScoreBoard(QDockWidget):
 
     @pyqtSlot(int)
     def onPlayerChange(self, playerId):
-        self.currentPlayer.setText(("Player " + str(playerId)))
+        self.currentPlayer.setText(f"Player {playerId}")
         if playerId == 1:
             self.turnIndicator.setStyleSheet("""
-                    background-color: black;
-                    border-radius: 30px;
-                    border: 1.5px solid black;
-                """)
+                background-color: black;
+                border-radius: 30px;
+                border: 1.5px solid black;
+            """)
         else:
             self.turnIndicator.setStyleSheet("""
-                           background-color: white;
-                           border-radius: 30px;
-                           border: 1.5px solid black;
-                       """)
+                background-color: white;
+                border-radius: 30px;
+                border: 1.5px solid black;
+            """)
 
+        # Restart the timer for the new turn
+        self.startTimer()
     @pyqtSlot(int, int)
     def onPrisionerCountChange(self, prisoners_black, prisoners_white):
         print("black: ", prisoners_black, " white: ", prisoners_white)
