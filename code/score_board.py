@@ -25,6 +25,7 @@ class ScoreBoard(QDockWidget):
         self.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
 
     def startTurnTimer(self):
+        self.timer.stop()
         self.counter = self.TURN_TIME  # resetting the counter to a min
         self.update_label()
         self.timer.start(1000)  # trigger each sec
@@ -41,12 +42,10 @@ class ScoreBoard(QDockWidget):
         # switch turn for the timer.
         self.parent().game_logic.swap_turn()
         self.onPlayerChange(self.parent().game_logic.current_player)
-        self.startTurnTimer()
 
     @pyqtSlot(int)
     def onPlayerChange(self, playerId):
         self.currentPlayer.setText(f"Player {playerId}")
-        self.timer.stop() #this might can clearly restarts the timer each turn
         self.startTurnTimer()  # reset the timer for each turn.
 
     def initUI(self):
