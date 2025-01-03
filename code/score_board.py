@@ -283,7 +283,7 @@ class ScoreBoard(QDockWidget):
         currentPlayerWidget.setLayout(currentPlayerLayout)
         turnLayout.addWidget(currentPlayerWidget, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        skipTurnBtn = self.customButton("skip", color="#D2B48C", textColor="#988558")
+        skipTurnBtn = self.customButton("pass", color="#D2B48C", textColor="#988558")
         skipTurnBtn.clicked.connect(self.skipTurn)
         skipTurnBtn.setMinimumWidth(200)
         turnLayout.addWidget(skipTurnBtn, alignment=Qt.AlignmentFlag.AlignCenter)

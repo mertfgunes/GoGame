@@ -33,24 +33,33 @@ class Go(QMainWindow):
         menuBar.setNativeMenuBar(False)
         menuBar.setStyleSheet("""
             QMenuBar {
-                background-color: #2d2d2d;
-                color: white;
-                font-family: 'YsabeauSC-SemiBold';
+                color: #F5DEB3;            /* Wheat color for text */
                 font-size: 14px;
                 font-weight: bold;
-                padding: 5px;
+                padding: 7px;              /* Increased padding for spacing */
+            }
+            QMenuBar::item {
+                padding: 5px 10px;         /* Add padding for menu items */
+                margin: 3px;               /* Add spacing between items */
             }
             QMenuBar::item:selected {
-                background-color: #4a4a4a;
+                background-color: #A67B5B; /* Lighter brown */
             }
             QMenu {
-                background-color: #2d2d2d;
-                color: white;
-                font-family: 'YsabeauSC-SemiBold';
-                border: 1px solid #3a3a3a;
+                background-color: #8B5E3C; /* Same as menu bar for consistency */
+                color: #F5DEB3;
+                border: 1px solid #704214; /* Darker brown border */
+                border-radius: 8px;        /* Rounded corners */
+                padding: 5px;              /* Add padding to the menu */
+            }
+            QMenu::item {
+                padding: 10px 20px;        /* Increased spacing for menu items */
+                margin: 5px 0;             /* Added vertical spacing between items */
             }
             QMenu::item:selected {
-                background-color: #4a4a4a;
+                background-color: #A67B5B; /* Match selected state with menu bar */
+                padding: 10px 20px;        /* Maintain spacing for selected items */
+                margin: 5px 0;             /* Maintain vertical spacing */
             }
         """)
 
