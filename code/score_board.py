@@ -75,12 +75,12 @@ class ScoreBoard(QDockWidget):
         buttonsLayout = QHBoxLayout()
 
         # Add undo button
-        self.undoButton = self.customButton("undo", "grey")
+        self.undoButton = self.customButton("⎌undo", "grey")
         self.undoButton.clicked.connect(self.undoMove)
         buttonsLayout.addWidget(self.undoButton)
 
         # Add clear button
-        self.clearButton = self.customButton("clear", "Red")
+        self.clearButton = self.customButton("Reset", "Red")
         self.clearButton.clicked.connect(self.clearBoard)
         buttonsLayout.addWidget(self.clearButton)
 
@@ -282,8 +282,7 @@ class ScoreBoard(QDockWidget):
 
         currentPlayerWidget.setLayout(currentPlayerLayout)
         turnLayout.addWidget(currentPlayerWidget, alignment=Qt.AlignmentFlag.AlignCenter)
-
-        skipTurnBtn = self.customButton("pass", color="#D2B48C", textColor="#988558")
+        skipTurnBtn = self.customButton("pass", textColor="#D2B48C", color="#A67B5B")
         skipTurnBtn.clicked.connect(self.skipTurn)
         skipTurnBtn.setMinimumWidth(200)
         turnLayout.addWidget(skipTurnBtn, alignment=Qt.AlignmentFlag.AlignCenter)

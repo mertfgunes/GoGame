@@ -7,6 +7,7 @@ class WelcomePage(QWidget):
         super().__init__(parent)
         self.initUI()
 
+
     def initUI(self):
         layout = QVBoxLayout(self)
         layout.setSpacing(30)
@@ -46,7 +47,6 @@ class WelcomePage(QWidget):
             btn.clicked.connect(callback)
             layout.addWidget(btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.setStyleSheet("background-color: #1a1a1a;")
 
     def startGame(self):
         if self.parent():

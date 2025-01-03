@@ -11,6 +11,7 @@ from game_logic import game_logic
 class Go(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.setStyleSheet("background-color: #1a1a1a;")
         self.initWelcome()
         self.createMenuBar()
         self.game_logic = game_logic()  # Create game logic instance
@@ -37,6 +38,7 @@ class Go(QMainWindow):
                 font-size: 14px;
                 font-weight: bold;
                 padding: 7px;              /* Increased padding for spacing */
+                background-color: #323232; /* Lighter brown */
             }
             QMenuBar::item {
                 padding: 5px 10px;         /* Add padding for menu items */
