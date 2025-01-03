@@ -100,6 +100,10 @@ class game_logic:
         # if it is first players turn, 3 - 1 = 2 turns into second player.
         # if it is the second player's turn, 3 - 2 = 1 turns into the first player.
 
+    def skip_turn(self):
+        print(f"Player {self.current_player} skipped their turn.")
+        self.swap_turn()
+
     def capture_pieces(self, x, y):
         # capturing logic
         opponent = 3 - self.current_player

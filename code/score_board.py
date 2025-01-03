@@ -60,10 +60,15 @@ class ScoreBoard(QDockWidget):
 
         # Add Prisoners section
         self.addPrisonersSection()
-
         self.mainLayout.addStretch()
+
         # Add Turn section
         self.addTurnSection()
+        self.mainLayout.addStretch()
+
+        self.addSkipTurnButton()
+
+        self.mainLayout.addWidget(self.timer_label, alignment=Qt.AlignmentFlag.AlignCenter)
         self.mainLayout.addStretch()
 
         # Set the main widget
@@ -86,6 +91,19 @@ class ScoreBoard(QDockWidget):
 
         buttonsWidget.setLayout(buttonsLayout)
         self.mainLayout.addWidget(buttonsWidget)
+
+    def addSkipTurnButton(self):
+        skipTurnButton = self.customButton("Skip Turn", "blue")
+        skipTurnButton.clicked.connect(self.skipTurn)
+        self.mainLayout.addWidget(skipTurnButton, alignment=Qt.AlignmentFlag.AlignCenter)
+
+    def skipTurn(self):
+        try:
+            if self.parent() and hasattr(self.parent(), 'game_logic'):
+                self.parent().game_logic.skip_turn()
+                self.onPlayerChange(self.parent().game_logic.current_player)  # Update the UI for the new turn
+        except Exception as e:
+            print(f"Error skipping turn: {e}")
 
     def update_timer_label(self):
         minutes, seconds = divmod(self.counter, 60)
