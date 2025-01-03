@@ -17,7 +17,7 @@ class ScoreBoard(QDockWidget):
         self.timer.timeout.connect(self.update_timer)
         self.counter = self.GAME_TIME
         self.timer_label = self.Text("10:00", size=32, bold=True, color="green", disableCustomFont=True)
-        self.currentPlayer = self.Text("Player 1", size=32, bold=True)
+        self.currentPlayer = self.Text("Player 1", size=28, bold=True)
         self.blackPrisioner = self.Text("0", size=24)
         self.whitePrisioner = self.Text("0", size=24)
 
@@ -261,7 +261,7 @@ class ScoreBoard(QDockWidget):
         turnWidget.setStyleSheet("background: #bfa395; border-radius: 10px;")
         turnLayout = QVBoxLayout()
 
-        turnLabel = self.Text("Current Player", color="#92400E", size=28, bold=True)
+        turnLabel = self.Text("Current Player", color="#92400E", size=24, bold=True)
         turnLayout.addWidget(turnLabel, alignment=Qt.AlignmentFlag.AlignCenter)
 
         turnLayout.addWidget(self.Text("make you're move in"), alignment=Qt.AlignmentFlag.AlignCenter)
