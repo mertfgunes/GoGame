@@ -6,6 +6,7 @@ class game_logic:
         self.current_player = 1  # 1 for black, 2 for white because black goes first.
         self.board_history = []
         self.current_player_history = []
+        self.prisoner_history = []
 
         # score variable to keep track of the game.
         # not sure if it is going to be used.
@@ -76,19 +77,20 @@ class game_logic:
 
         self.board_history.append([row[:] for row in self.board])
         self.current_player_history.append(self.current_player)
-        self.board[x][y] = self.current_player
+        self.prisoner_history.append((self.prisoners_black, self.prisoners_white))
 
-        self.capture_pieces(x, y)  # check and remove captured pieces
-        self.swap_turn()  # after each move turn swaps
+        self.board[x][y] = self.current_player
+        self.capture_pieces(x, y)  # Check and remove captured pieces
+        self.swap_turn()
         return True
 
     def undoLastMove(self):
-        if len(self.board_history) > 0:  # Add this check
-            print("Undoing last move")  # Add debug print
+        if len(self.board_history) > 0:
             self.board = self.board_history.pop()
             self.current_player = self.current_player_history.pop()
+            self.prisoners_black, self.prisoners_white = self.prisoner_history.pop()  # Restore prisoner counts
             return True
-        print("No moves to undo")  # Add debug print
+        print("No moves to undo")
         return False
 
     def swap_turn(self):

@@ -165,8 +165,9 @@ class ScoreBoard(QDockWidget):
                 success = self.parent().game_logic.undoLastMove()
                 if success:
                     self.parent().board.update()
-                    # Update turn indicator
                     self.onPlayerChange(self.parent().game_logic.current_player)
+                    self.onPrisionerCountChange(self.parent().game_logic.prisoners_black,
+                                                self.parent().game_logic.prisoners_white)  # Update prisoner counts
         except Exception as e:
             print(f"Error in undo: {e}")
 
