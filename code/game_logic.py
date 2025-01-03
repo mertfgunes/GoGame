@@ -25,10 +25,27 @@ class game_logic:
 
         # check the liberties, the next method explains it
         self.board[x][y] = self.current_player
+
+        opponent_captured = self.simulate_capture(x, y)
+
         has_liberty = self.check_liberties(x, y)
         self.board[x][y] = 0  # Undo the simulated move
 
-        return has_liberty
+        return has_liberty or opponent_captured
+
+    def simulate_capture(self, x, y):
+        # bug fix for the corner taken pieces logic.
+        opponent = 3 - self.current_player
+        directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+        captured = False
+
+        for dx, dy in directions:
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < self.board_size and 0 <= ny < self.board_size and self.board[nx][ny] == opponent:
+                visited = set()
+                if not self._has_liberties(nx, ny, visited):
+                    captured = True
+        return captured
 
     def check_liberties(self, x, y):
         # checker for the stone or its group has liberties
@@ -87,28 +104,27 @@ class game_logic:
         directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]  # each direction
         to_capture = []
 
-        def has_liberties(x, y, visited):
+        def has_liberties(cx, cy, visited):
             #check for the group for liberties.
-            if (x, y) in visited:
+            if (cx, cy) in visited:
                 return False
-            visited.add((x, y))
-            if not (0 <= x < self.board_size and 0 <= y < self.board_size):
+            visited.add((cx, cy))
+            if not (0 <= cx < self.board_size and 0 <= cy < self.board_size):
                 return False
-            if self.board[x][y] == 0:
+            if self.board[cx][cy] == 0:
                 return True
-            if self.board[x][y] != opponent:
+            if self.board[cx][cy] != opponent:
                 return False
+            return any(has_liberties(cx + dx, cy + dy, visited) for dx, dy in directions)
 
-            return any(has_liberties(x + dx, y + dy, visited) for dx, dy in directions)
-
-        def collect_group(x, y, group):
+        def collect_group(cx, cy, group):
             #collecting stones in a group
-            if (x, y) in group or not (0 <= x < self.board_size and 0 <= y < self.board_size):
+            if (cx, cy) in group or not (0 <= cx < self.board_size and 0 <= cy < self.board_size):
                 return
-            if self.board[x][y] == opponent:
-                group.add((x, y))
+            if self.board[cx][cy] == opponent:
+                group.add((cx, cy))
                 for dx, dy in directions:
-                    collect_group(x + dx, y + dy, group)
+                    collect_group(cx + dx, cy + dy, group)
 
         # checking each directions for opponent
         for dx, dy in directions:
