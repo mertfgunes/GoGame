@@ -11,7 +11,7 @@ class ScoreBoard(QDockWidget):
 
     def __init__(self):
         super().__init__()
-        self.GAME_TIME = 60 # a min per each turn
+        self.GAME_TIME = 60  # a min per each turn
         self.turnIndicator = None
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_timer)
@@ -20,6 +20,12 @@ class ScoreBoard(QDockWidget):
         self.currentPlayer = self.Text("Player 1", size=32, bold=True)
         self.blackPrisioner = self.Text("0", size=24)
         self.whitePrisioner = self.Text("0", size=24)
+
+        # Add blink timer
+        self.blink_timer = QTimer(self)
+        self.blink_timer.timeout.connect(self.blink_timer_label)
+        self.blink_state = True
+
         self.initUI()
         self.startTimer()
         self.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
@@ -60,9 +66,6 @@ class ScoreBoard(QDockWidget):
         self.addTurnSection()
         self.mainLayout.addStretch()
 
-        self.mainLayout.addWidget(self.timer_label, alignment=Qt.AlignmentFlag.AlignCenter)
-        self.mainLayout.addStretch()
-
         # Set the main widget
         self.mainWidget.setLayout(self.mainLayout)
         self.setWidget(self.mainWidget)
@@ -84,21 +87,45 @@ class ScoreBoard(QDockWidget):
         buttonsWidget.setLayout(buttonsLayout)
         self.mainLayout.addWidget(buttonsWidget)
 
-    def update_label(self):
+    def update_timer_label(self):
         minutes, seconds = divmod(self.counter, 60)
         self.timer_label.setText(f"{minutes:02}:{seconds:02}")
 
+        # Start blinking if 5 or fewer seconds remain
+        if self.counter <= 5:
+            if not self.blink_timer.isActive():
+                self.blink_timer.start(500)  # Blink every 500ms
+            self.timer_label.setStyleSheet("color: red;")
+        else:
+            if self.blink_timer.isActive():
+                self.blink_timer.stop()
+            self.timer_label.setStyleSheet("color: green;")
+            self.blink_state = True
+
+    def blink_timer_label(self):
+        if self.blink_state:
+            self.timer_label.setStyleSheet("color: transparent;")
+        else:
+            self.timer_label.setStyleSheet("color: red;")
+        self.blink_state = not self.blink_state
+
     def startTimer(self):
         self.counter = self.GAME_TIME  # Reset counter
-        self.update_label()
+        self.update_timer_label()
         self.timer.start(1000)  # Trigger every 1 second
+        if self.blink_timer.isActive():
+            self.blink_timer.stop()
+        self.timer_label.setStyleSheet("color: green;")
+        self.blink_state = True
 
     def update_timer(self):
         self.counter -= 1
-        self.update_label()
+        self.update_timer_label()
         if self.counter <= 0:
             self.timer.stop()
+            self.blink_timer.stop()
             self.timer_label.setText("Time's up!")
+            self.timer_label.setStyleSheet("color: red;")
 
             prisoners_black = int(self.blackPrisioner.text())
             prisoners_white = int(self.whitePrisioner.text())
@@ -107,7 +134,6 @@ class ScoreBoard(QDockWidget):
             popup = GameOverPage(prisoners_black, prisoners_white)
             popup.exec()
             self.clearBoard()
-
 
     def clearBoard(self):
         """Clears all stones from the game board and resets the game state"""
@@ -169,6 +195,7 @@ class ScoreBoard(QDockWidget):
 
         # Restart the timer for the new turn
         self.startTimer()
+
     @pyqtSlot(int, int)
     def onPrisionerCountChange(self, prisoners_black, prisoners_white):
         print("black: ", prisoners_black, " white: ", prisoners_white)
@@ -225,8 +252,11 @@ class ScoreBoard(QDockWidget):
         turnWidget.setStyleSheet("background: #bfa395; border-radius: 10px;")
         turnLayout = QVBoxLayout()
 
-        turnLabel = self.Text("Current Player", color="#92400E", size=24)
+        turnLabel = self.Text("Current Player", color="#92400E", size=28, bold=True)
         turnLayout.addWidget(turnLabel, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        turnLayout.addWidget(self.Text("make you're move in"), alignment=Qt.AlignmentFlag.AlignCenter)
+        turnLayout.addWidget(self.timer_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
         currentPlayerWidget = QWidget()
         currentPlayerLayout = QHBoxLayout()
