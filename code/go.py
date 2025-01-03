@@ -63,14 +63,24 @@ class Go(QMainWindow):
         backToMenuAction.setShortcut(QKeySequence("ctrl+w"))
         fileMenu.addSeparator()  # separator line
 
+        #Action Menu
         actionMenu = menuBar.addMenu("Actions")
+
         undoAction = actionMenu.addAction("Undo")
         undoAction.triggered.connect(lambda: self.scoreBoard.undoMove() if hasattr(self, 'scoreBoard') else None)
         undoAction.setShortcut(QKeySequence("Ctrl+Z"))
+
+        skipAction = actionMenu.addAction("Skip Turn")
+        skipAction.triggered.connect(lambda: self.scoreBoard.skipTurn() if hasattr(self, 'scoreBoard') else None)
+        skipAction.setShortcut(QKeySequence("Ctrl+t"))
+
         resetAction = actionMenu.addAction("Reset Board")
         resetAction.setShortcut(QKeySequence("Ctrl+Shift+R"))
         resetAction.triggered.connect(lambda: self.scoreBoard.clearBoard() if hasattr(self, 'scoreBoard') else None)
 
+
+
+        #Help Menu
         helpMenu = menuBar.addMenu("Help")
         rulesAction = helpMenu.addAction("Rules")
         rulesAction.setShortcut(QKeySequence("alt+h"))

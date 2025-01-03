@@ -66,11 +66,6 @@ class ScoreBoard(QDockWidget):
         self.addTurnSection()
         self.mainLayout.addStretch()
 
-        self.addSkipTurnButton()
-
-        self.mainLayout.addWidget(self.timer_label, alignment=Qt.AlignmentFlag.AlignCenter)
-        self.mainLayout.addStretch()
-
         # Set the main widget
         self.mainWidget.setLayout(self.mainLayout)
         self.setWidget(self.mainWidget)
@@ -91,11 +86,6 @@ class ScoreBoard(QDockWidget):
 
         buttonsWidget.setLayout(buttonsLayout)
         self.mainLayout.addWidget(buttonsWidget)
-
-    def addSkipTurnButton(self):
-        skipTurnButton = self.customButton("Skip Turn", "blue")
-        skipTurnButton.clicked.connect(self.skipTurn)
-        self.mainLayout.addWidget(skipTurnButton, alignment=Qt.AlignmentFlag.AlignCenter)
 
     def skipTurn(self):
         try:
@@ -292,8 +282,13 @@ class ScoreBoard(QDockWidget):
 
         currentPlayerWidget.setLayout(currentPlayerLayout)
         turnLayout.addWidget(currentPlayerWidget, alignment=Qt.AlignmentFlag.AlignCenter)
-        turnWidget.setLayout(turnLayout)
 
+        skipTurnBtn = self.customButton("skip", color="#D2B48C", textColor="#988558")
+        skipTurnBtn.clicked.connect(self.skipTurn)
+        skipTurnBtn.setMinimumWidth(200)
+        turnLayout.addWidget(skipTurnBtn, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        turnWidget.setLayout(turnLayout)
         self.mainLayout.addWidget(turnWidget)
 
     def createPrisonerCount(self, text, iconPath: str) -> QWidget:
@@ -331,44 +326,31 @@ class ScoreBoard(QDockWidget):
         if color != "black":
             text.setStyleSheet(f"color: {color};")
 
-        # Set font
-        if not disableCustomFont:
-            font = QFont(self.customFont(), size)
-            font.setBold(bold)
-        else:
+        # Disable custom font
+        if disableCustomFont:
             font = QFont("Arial", size)
             font.setBold(bold)
+            text.setFont(font)
+
+        # set font size
+        font = QFont()
+        font.setPointSize(size)
         text.setFont(font)
         return text
 
-    def customFont(self):
-        # Get the current working directory and construct the font path
-        current_dir = os.getcwd()
-        font_path = os.path.join(current_dir, "assets/fonts/YsabeauSC-SemiBold.ttf")
-
-        # Load custom font
-        font_id = QFontDatabase.addApplicationFont(font_path)
-        if font_id != -1:
-            font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
-            return font_family
-        else:
-            font_family = "Helvetica"
-            return font_family
-
-    def customButton(self, text, color):
+    def customButton(self, text, color, textColor:str="white"):
         btn = QPushButton(text)
         btn.setStyleSheet(f"""
                    QPushButton {{
                        background-color: {color};                     /* Base color */
-                       color: white;                                 /* White text */
+                       color: {textColor};                                 /* White text */
                        padding: 10px;                                /* Padding */
                        border-radius: 8px;                           /* Rounded corners */
+                       font-size: 20px;                              /* Font size */
                    }}
                    QPushButton:hover {{
                        font-size: 24px;                              /* Font size */
                    }}
                """)
         # Set font
-        font = QFont(self.customFont(), 20)
-        btn.setFont(font)
         return btn
