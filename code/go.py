@@ -11,6 +11,7 @@ from game_logic import game_logic
 class Go(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.setStyleSheet("background-color: #1a1a1a;")
         self.initWelcome()
         self.createMenuBar()
         self.game_logic = game_logic()  # Create game logic instance
@@ -33,24 +34,34 @@ class Go(QMainWindow):
         menuBar.setNativeMenuBar(False)
         menuBar.setStyleSheet("""
             QMenuBar {
-                background-color: #2d2d2d;
-                color: white;
-                font-family: 'YsabeauSC-SemiBold';
+                color: #F5DEB3;            /* Wheat color for text */
                 font-size: 14px;
                 font-weight: bold;
-                padding: 5px;
+                padding: 7px;              /* Increased padding for spacing */
+                background-color: #323232; /* Lighter brown */
+            }
+            QMenuBar::item {
+                padding: 5px 10px;         /* Add padding for menu items */
+                margin: 3px;               /* Add spacing between items */
             }
             QMenuBar::item:selected {
-                background-color: #4a4a4a;
+                background-color: #A67B5B; /* Lighter brown */
             }
             QMenu {
-                background-color: #2d2d2d;
-                color: white;
-                font-family: 'YsabeauSC-SemiBold';
-                border: 1px solid #3a3a3a;
+                background-color: #8B5E3C; /* Same as menu bar for consistency */
+                color: #F5DEB3;
+                border: 1px solid #704214; /* Darker brown border */
+                border-radius: 8px;        /* Rounded corners */
+                padding: 5px;              /* Add padding to the menu */
+            }
+            QMenu::item {
+                padding: 10px 20px;        /* Increased spacing for menu items */
+                margin: 5px 0;             /* Added vertical spacing between items */
             }
             QMenu::item:selected {
-                background-color: #4a4a4a;
+                background-color: #A67B5B; /* Match selected state with menu bar */
+                padding: 10px 20px;        /* Maintain spacing for selected items */
+                margin: 5px 0;             /* Maintain vertical spacing */
             }
         """)
 
@@ -63,14 +74,24 @@ class Go(QMainWindow):
         backToMenuAction.setShortcut(QKeySequence("ctrl+w"))
         fileMenu.addSeparator()  # separator line
 
+        #Action Menu
         actionMenu = menuBar.addMenu("Actions")
+
         undoAction = actionMenu.addAction("Undo")
         undoAction.triggered.connect(lambda: self.scoreBoard.undoMove() if hasattr(self, 'scoreBoard') else None)
         undoAction.setShortcut(QKeySequence("Ctrl+Z"))
+
+        skipAction = actionMenu.addAction("Skip Turn")
+        skipAction.triggered.connect(lambda: self.scoreBoard.skipTurn() if hasattr(self, 'scoreBoard') else None)
+        skipAction.setShortcut(QKeySequence("Ctrl+t"))
+
         resetAction = actionMenu.addAction("Reset Board")
         resetAction.setShortcut(QKeySequence("Ctrl+Shift+R"))
         resetAction.triggered.connect(lambda: self.scoreBoard.clearBoard() if hasattr(self, 'scoreBoard') else None)
 
+
+
+        #Help Menu
         helpMenu = menuBar.addMenu("Help")
         rulesAction = helpMenu.addAction("Rules")
         rulesAction.setShortcut(QKeySequence("alt+h"))
@@ -170,7 +191,7 @@ class Go(QMainWindow):
     def showAbout(self):
         about_text = """
         Go Game
-        Version 1.0
+        Version 1.1
 
         A traditional board game with
         history spanning over 2,500 years.

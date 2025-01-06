@@ -6,8 +6,9 @@ class game_logic:
         self.current_player = 1  # 1 for black, 2 for white because black goes first.
         self.board_history = []
         self.current_player_history = []
+        self.prisoner_history = []
 
-        #score variable to keep track of the game.
+        # score variable to keep track of the game.
         # not sure if it is going to be used.
         self.score_black = 0
         self.score_white = 0
@@ -76,36 +77,41 @@ class game_logic:
 
         self.board_history.append([row[:] for row in self.board])
         self.current_player_history.append(self.current_player)
-        self.board[x][y] = self.current_player
+        self.prisoner_history.append((self.prisoners_black, self.prisoners_white))
 
-        self.capture_pieces(x, y)  # check and remove captured pieces
-        self.swap_turn() #after each move turn swaps
+        self.board[x][y] = self.current_player
+        self.capture_pieces(x, y)  # Check and remove captured pieces
+        self.swap_turn()
         return True
 
     def undoLastMove(self):
-        if len(self.board_history) > 0:  # Add this check
-            print("Undoing last move")  # Add debug print
+        if len(self.board_history) > 0:
             self.board = self.board_history.pop()
             self.current_player = self.current_player_history.pop()
+            self.prisoners_black, self.prisoners_white = self.prisoner_history.pop()  # Restore prisoner counts
             return True
-        print("No moves to undo")  # Add debug print
+        print("No moves to undo")
         return False
-    
+
     def swap_turn(self):
-        #swap turn
+        # swap turn
         self.current_player = 3 - self.current_player
         # swaps between 1 and 2
         # if it is first players turn, 3 - 1 = 2 turns into second player.
-        #if it is the second player's turn, 3 - 2 = 1 turns into the first player.
+        # if it is the second player's turn, 3 - 2 = 1 turns into the first player.
+
+    def skip_turn(self):
+        print(f"Player {self.current_player} skipped their turn.")
+        self.swap_turn()
 
     def capture_pieces(self, x, y):
-        #capturing logic
+        # capturing logic
         opponent = 3 - self.current_player
         directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]  # each direction
         to_capture = []
 
         def has_liberties(cx, cy, visited):
-            #check for the group for liberties.
+            # check for the group for liberties.
             if (cx, cy) in visited:
                 return False
             visited.add((cx, cy))
@@ -118,7 +124,7 @@ class game_logic:
             return any(has_liberties(cx + dx, cy + dy, visited) for dx, dy in directions)
 
         def collect_group(cx, cy, group):
-            #collecting stones in a group
+            # collecting stones in a group
             if (cx, cy) in group or not (0 <= cx < self.board_size and 0 <= cy < self.board_size):
                 return
             if self.board[cx][cy] == opponent:
@@ -135,7 +141,7 @@ class game_logic:
                 if not has_liberties(nx, ny, set()):
                     to_capture.extend(group)
 
-        #remove the captured prisoner.
+        # remove the captured prisoner.
         # and update the prisoner count here
         for cx, cy in to_capture:
             self.board[cx][cy] = 0
@@ -150,8 +156,6 @@ class game_logic:
         for row in self.board:
             print(" ".join(str(cell) for cell in row))
         print()  # Add a blank line for better readability
-
-
 
     # Example Usage
 # if __name__ == "__main__":

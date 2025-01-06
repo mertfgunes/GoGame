@@ -11,15 +11,21 @@ class ScoreBoard(QDockWidget):
 
     def __init__(self):
         super().__init__()
-        self.GAME_TIME = 60 # a min per each turn
+        self.GAME_TIME = 60  # a min per each turn
         self.turnIndicator = None
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_timer)
         self.counter = self.GAME_TIME
         self.timer_label = self.Text("10:00", size=32, bold=True, color="green", disableCustomFont=True)
-        self.currentPlayer = self.Text("Player 1", size=32, bold=True)
+        self.currentPlayer = self.Text("Player 1", size=28, bold=True)
         self.blackPrisioner = self.Text("0", size=24)
         self.whitePrisioner = self.Text("0", size=24)
+
+        # Add blink timer
+        self.blink_timer = QTimer(self)
+        self.blink_timer.timeout.connect(self.blink_timer_label)
+        self.blink_state = True
+
         self.initUI()
         self.startTimer()
         self.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
@@ -54,13 +60,10 @@ class ScoreBoard(QDockWidget):
 
         # Add Prisoners section
         self.addPrisonersSection()
-
         self.mainLayout.addStretch()
+
         # Add Turn section
         self.addTurnSection()
-        self.mainLayout.addStretch()
-
-        self.mainLayout.addWidget(self.timer_label, alignment=Qt.AlignmentFlag.AlignCenter)
         self.mainLayout.addStretch()
 
         # Set the main widget
@@ -72,33 +75,65 @@ class ScoreBoard(QDockWidget):
         buttonsLayout = QHBoxLayout()
 
         # Add undo button
-        self.undoButton = self.customButton("undo", "grey")
+        self.undoButton = self.customButton("⎌undo", "grey")
         self.undoButton.clicked.connect(self.undoMove)
         buttonsLayout.addWidget(self.undoButton)
 
         # Add clear button
-        self.clearButton = self.customButton("clear", "Red")
+        self.clearButton = self.customButton("Reset", "Red")
         self.clearButton.clicked.connect(self.clearBoard)
         buttonsLayout.addWidget(self.clearButton)
 
         buttonsWidget.setLayout(buttonsLayout)
         self.mainLayout.addWidget(buttonsWidget)
 
-    def update_label(self):
+    def skipTurn(self):
+        try:
+            if self.parent() and hasattr(self.parent(), 'game_logic'):
+                self.parent().game_logic.skip_turn()
+                self.onPlayerChange(self.parent().game_logic.current_player)  # Update the UI for the new turn
+        except Exception as e:
+            print(f"Error skipping turn: {e}")
+
+    def update_timer_label(self):
         minutes, seconds = divmod(self.counter, 60)
         self.timer_label.setText(f"{minutes:02}:{seconds:02}")
 
+        # Start blinking if 5 or fewer seconds remain
+        if self.counter <= 5:
+            if not self.blink_timer.isActive():
+                self.blink_timer.start(500)  # Blink every 500ms
+            self.timer_label.setStyleSheet("color: red;")
+        else:
+            if self.blink_timer.isActive():
+                self.blink_timer.stop()
+            self.timer_label.setStyleSheet("color: green;")
+            self.blink_state = True
+
+    def blink_timer_label(self):
+        if self.blink_state:
+            self.timer_label.setStyleSheet("color: transparent;")
+        else:
+            self.timer_label.setStyleSheet("color: red;")
+        self.blink_state = not self.blink_state
+
     def startTimer(self):
         self.counter = self.GAME_TIME  # Reset counter
-        self.update_label()
+        self.update_timer_label()
         self.timer.start(1000)  # Trigger every 1 second
+        if self.blink_timer.isActive():
+            self.blink_timer.stop()
+        self.timer_label.setStyleSheet("color: green;")
+        self.blink_state = True
 
     def update_timer(self):
         self.counter -= 1
-        self.update_label()
+        self.update_timer_label()
         if self.counter <= 0:
             self.timer.stop()
+            self.blink_timer.stop()
             self.timer_label.setText("Time's up!")
+            self.timer_label.setStyleSheet("color: red;")
 
             prisoners_black = int(self.blackPrisioner.text())
             prisoners_white = int(self.whitePrisioner.text())
@@ -107,7 +142,6 @@ class ScoreBoard(QDockWidget):
             popup = GameOverPage(prisoners_black, prisoners_white)
             popup.exec()
             self.clearBoard()
-
 
     def clearBoard(self):
         """Clears all stones from the game board and resets the game state"""
@@ -139,8 +173,9 @@ class ScoreBoard(QDockWidget):
                 success = self.parent().game_logic.undoLastMove()
                 if success:
                     self.parent().board.update()
-                    # Update turn indicator
                     self.onPlayerChange(self.parent().game_logic.current_player)
+                    self.onPrisionerCountChange(self.parent().game_logic.prisoners_black,
+                                                self.parent().game_logic.prisoners_white)  # Update prisoner counts
         except Exception as e:
             print(f"Error in undo: {e}")
 
@@ -169,6 +204,7 @@ class ScoreBoard(QDockWidget):
 
         # Restart the timer for the new turn
         self.startTimer()
+
     @pyqtSlot(int, int)
     def onPrisionerCountChange(self, prisoners_black, prisoners_white):
         print("black: ", prisoners_black, " white: ", prisoners_white)
@@ -225,8 +261,11 @@ class ScoreBoard(QDockWidget):
         turnWidget.setStyleSheet("background: #bfa395; border-radius: 10px;")
         turnLayout = QVBoxLayout()
 
-        turnLabel = self.Text("Current Player", color="#92400E", size=24)
+        turnLabel = self.Text("Current Player", color="#92400E", size=24, bold=True)
         turnLayout.addWidget(turnLabel, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        turnLayout.addWidget(self.Text("make you're move in"), alignment=Qt.AlignmentFlag.AlignCenter)
+        turnLayout.addWidget(self.timer_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
         currentPlayerWidget = QWidget()
         currentPlayerLayout = QHBoxLayout()
@@ -243,8 +282,12 @@ class ScoreBoard(QDockWidget):
 
         currentPlayerWidget.setLayout(currentPlayerLayout)
         turnLayout.addWidget(currentPlayerWidget, alignment=Qt.AlignmentFlag.AlignCenter)
-        turnWidget.setLayout(turnLayout)
+        skipTurnBtn = self.customButton("pass", textColor="#D2B48C", color="#A67B5B")
+        skipTurnBtn.clicked.connect(self.skipTurn)
+        skipTurnBtn.setMinimumWidth(200)
+        turnLayout.addWidget(skipTurnBtn, alignment=Qt.AlignmentFlag.AlignCenter)
 
+        turnWidget.setLayout(turnLayout)
         self.mainLayout.addWidget(turnWidget)
 
     def createPrisonerCount(self, text, iconPath: str) -> QWidget:
@@ -282,44 +325,31 @@ class ScoreBoard(QDockWidget):
         if color != "black":
             text.setStyleSheet(f"color: {color};")
 
-        # Set font
-        if not disableCustomFont:
-            font = QFont(self.customFont(), size)
-            font.setBold(bold)
-        else:
+        # Disable custom font
+        if disableCustomFont:
             font = QFont("Arial", size)
             font.setBold(bold)
+            text.setFont(font)
+
+        # set font size
+        font = QFont()
+        font.setPointSize(size)
         text.setFont(font)
         return text
 
-    def customFont(self):
-        # Get the current working directory and construct the font path
-        current_dir = os.getcwd()
-        font_path = os.path.join(current_dir, "assets/fonts/YsabeauSC-SemiBold.ttf")
-
-        # Load custom font
-        font_id = QFontDatabase.addApplicationFont(font_path)
-        if font_id != -1:
-            font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
-            return font_family
-        else:
-            font_family = "Helvetica"
-            return font_family
-
-    def customButton(self, text, color):
+    def customButton(self, text, color, textColor:str="white"):
         btn = QPushButton(text)
         btn.setStyleSheet(f"""
                    QPushButton {{
                        background-color: {color};                     /* Base color */
-                       color: white;                                 /* White text */
+                       color: {textColor};                                 /* White text */
                        padding: 10px;                                /* Padding */
                        border-radius: 8px;                           /* Rounded corners */
+                       font-size: 20px;                              /* Font size */
                    }}
                    QPushButton:hover {{
                        font-size: 24px;                              /* Font size */
                    }}
                """)
         # Set font
-        font = QFont(self.customFont(), 20)
-        btn.setFont(font)
         return btn
