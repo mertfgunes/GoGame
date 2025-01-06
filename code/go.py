@@ -191,7 +191,7 @@ class Go(QMainWindow):
     def showAbout(self):
         about_text = """
         Go Game
-        Version 1.0
+        Version 1.1
 
         A traditional board game with
         history spanning over 2,500 years.
